@@ -1,1 +1,14 @@
+KinectCapture/bin/
+KinectCapture/obj/
+*.user
+.vs/
 
+MinecraftMod/build/
+MinecraftMod/.gradle/
+MinecraftMod/run/
+.idea/
+*.iml
+out/
+
+*.log
+.DS_Store
