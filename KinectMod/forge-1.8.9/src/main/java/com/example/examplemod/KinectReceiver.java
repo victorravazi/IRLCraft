@@ -1,44 +1,43 @@
 package com.example.examplemod;
 
+import com.example.examplemod.PlayerSkeleton;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 
-public class KinectReceiver {
+public class KinectReceiver extends Thread {
+
+    private final int port;
 
     private DatagramSocket socket;
 
-    private volatile float[][] joints;
+    private volatile List<PlayerSkeleton> players =
+            new ArrayList<PlayerSkeleton>();
 
-    private volatile boolean running;
-
-    public KinectReceiver(int port) throws Exception {
-
-        joints = new float[20][3];
-
-        socket = new DatagramSocket(port);
-
-        running = true;
-
-        Thread thread = new Thread(
-                this::receiveLoop,
-                "Kinect-UDP"
-        );
-
-        thread.setDaemon(true);
-
-        thread.start();
+    public KinectReceiver(int port) {
+        this.port = port;
     }
 
-    private void receiveLoop() {
+    @Override
+    public void run() {
 
-        byte[] buffer =
-                new byte[244];
+        try {
 
-        while (running) {
+            socket = new DatagramSocket(port);
 
-            try {
+            System.out.println(
+                    "[Kinect] Receiver iniciado na porta "
+                            + port
+            );
+
+            byte[] buffer = new byte[4096];
+
+            while (!isInterrupted()) {
 
                 DatagramPacket packet =
                         new DatagramPacket(
@@ -48,57 +47,166 @@ public class KinectReceiver {
 
                 socket.receive(packet);
 
-                ByteBuffer data =
-                        ByteBuffer.wrap(
-                                packet.getData(),
-                                0,
-                                packet.getLength()
-                        );
-
-                data.order(
-                        ByteOrder.LITTLE_ENDIAN
+                readPacket(
+                        packet.getData(),
+                        packet.getLength()
                 );
+            }
 
-                int count =
-                        data.getInt();
+        } catch (IOException e) {
 
-                if (count != 20)
-                    continue;
-
-                float[][] newJoints =
-                        new float[20][3];
-
-                for (int i = 0; i < 20; i++) {
-
-                    newJoints[i][0] =
-                            data.getFloat();
-
-                    newJoints[i][1] =
-                            data.getFloat();
-
-                    newJoints[i][2] =
-                            data.getFloat();
-                }
-
-                joints = newJoints;
-
-
-            } catch (Exception e) {
-
-                if (running) {
-                    e.printStackTrace();
-                }
+            if (!isInterrupted()) {
+                e.printStackTrace();
             }
         }
     }
 
-    public float[][] getJoints() {
-        return joints;
+    private void readPacket(
+            byte[] data,
+            int length) {
+
+        try {
+
+            ByteArrayInputStream input =
+                    new ByteArrayInputStream(
+                            data,
+                            0,
+                            length
+                    );
+
+            DataInputStream stream =
+                    new DataInputStream(input);
+
+            /*
+             * Quantidade de pessoas.
+             */
+            int playerCount =
+                    readIntLE(stream);
+
+            if (playerCount < 0 ||
+                    playerCount > 2) {
+
+                System.out.println(
+                        "[Kinect] Quantidade inválida: "
+                                + playerCount
+                );
+
+                return;
+            }
+
+            List<PlayerSkeleton> newPlayers =
+                    new ArrayList<PlayerSkeleton>();
+
+            for (int p = 0; p < playerCount; p++) {
+
+                /*
+                 * TrackingId
+                 */
+                long trackingId =
+                        readLongLE(stream);
+
+                /*
+                 * Quantidade de joints.
+                 */
+                int jointCount =
+                        readIntLE(stream);
+
+                if (jointCount != 20) {
+                    System.out.println(
+                            "[Kinect] Joint count inválido: "
+                                    + jointCount
+                    );
+
+                    return;
+                }
+
+                float[][] joints =
+                        new float[20][3];
+
+                for (int i = 0; i < 20; i++) {
+
+                    joints[i][0] =
+                            readFloatLE(stream);
+
+                    joints[i][1] =
+                            readFloatLE(stream);
+
+                    joints[i][2] =
+                            readFloatLE(stream);
+                }
+
+                newPlayers.add(
+                        new PlayerSkeleton(
+                                trackingId,
+                                joints
+                        )
+                );
+            }
+
+            /*
+             * Troca a lista inteira de uma vez.
+             *
+             * Isso evita o renderer pegar
+             * uma lista enquanto ela está
+             * sendo modificada.
+             */
+            players = newPlayers;
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        }
     }
 
-    public void stop() {
+    public List<PlayerSkeleton> getPlayers() {
+        return players;
+    }
 
-        running = false;
+    private int readIntLE(
+            DataInputStream stream)
+            throws IOException {
+
+        int b1 = stream.readUnsignedByte();
+        int b2 = stream.readUnsignedByte();
+        int b3 = stream.readUnsignedByte();
+        int b4 = stream.readUnsignedByte();
+
+        return
+                (b1) |
+                        (b2 << 8) |
+                        (b3 << 16) |
+                        (b4 << 24);
+    }
+
+    private long readLongLE(
+            DataInputStream stream)
+            throws IOException {
+
+        long result = 0;
+
+        for (int i = 0; i < 8; i++) {
+
+            result |=
+                    ((long)
+                            stream.readUnsignedByte())
+                            << (8 * i);
+        }
+
+        return result;
+    }
+
+    private float readFloatLE(
+            DataInputStream stream)
+            throws IOException {
+
+        return Float.intBitsToFloat(
+                readIntLE(stream)
+        );
+    }
+
+    public void stopReceiver() {
+
+        interrupt();
 
         if (socket != null) {
             socket.close();
