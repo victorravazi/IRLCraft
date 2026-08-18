@@ -16,8 +16,7 @@ public class KinectReceiver extends Thread {
 
     private DatagramSocket socket;
 
-    private volatile List<PlayerSkeleton> players =
-            new ArrayList<PlayerSkeleton>();
+    private volatile List<PlayerSkeleton> players = new ArrayList<PlayerSkeleton>();
 
     public KinectReceiver(int port) {
         this.port = port;
@@ -30,27 +29,17 @@ public class KinectReceiver extends Thread {
 
             socket = new DatagramSocket(port);
 
-            System.out.println(
-                    "[Kinect] Receiver iniciado na porta "
-                            + port
-            );
+            System.out.println("[Kinect] Receiver iniciado na porta " + port);
 
             byte[] buffer = new byte[4096];
 
             while (!isInterrupted()) {
 
-                DatagramPacket packet =
-                        new DatagramPacket(
-                                buffer,
-                                buffer.length
-                        );
+                DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
 
                 socket.receive(packet);
 
-                readPacket(
-                        packet.getData(),
-                        packet.getLength()
-                );
+                readPacket(packet.getData(),packet.getLength());
             }
 
         } catch (IOException e) {
@@ -61,99 +50,57 @@ public class KinectReceiver extends Thread {
         }
     }
 
-    private void readPacket(
-            byte[] data,
-            int length) {
-
+    private void readPacket(byte[] data,int length) {
         try {
+            ByteArrayInputStream input = new ByteArrayInputStream(data,0,length);
 
-            ByteArrayInputStream input =
-                    new ByteArrayInputStream(
-                            data,
-                            0,
-                            length
-                    );
+            DataInputStream stream = new DataInputStream(input);
 
-            DataInputStream stream =
-                    new DataInputStream(input);
+            int playerCount = readIntLE(stream);
 
-            /*
-             * Quantidade de pessoas.
-             */
-            int playerCount =
-                    readIntLE(stream);
+            if (playerCount < 0 || playerCount > 2) {
 
-            if (playerCount < 0 ||
-                    playerCount > 2) {
-
-                System.out.println(
-                        "[Kinect] Quantidade inválida: "
-                                + playerCount
-                );
+                System.out.println("[Kinect] Quantidade inválida: " + playerCount );
 
                 return;
             }
 
-            List<PlayerSkeleton> newPlayers =
-                    new ArrayList<PlayerSkeleton>();
+            List<PlayerSkeleton> newPlayers = new ArrayList<PlayerSkeleton>();
 
             for (int p = 0; p < playerCount; p++) {
 
-                /*
-                 * TrackingId
-                 */
-                long trackingId =
-                        readLongLE(stream);
 
-                /*
-                 * Quantidade de joints.
-                 */
-                int jointCount =
-                        readIntLE(stream);
+                long trackingId = readLongLE(stream);
+
+                int jointCount = readIntLE(stream);
+
 
                 if (jointCount != 20) {
-                    System.out.println(
-                            "[Kinect] Joint count inválido: "
-                                    + jointCount
-                    );
-
+                    System.out.println("[Kinect] Joint count inválido: "+ jointCount );
                     return;
                 }
 
-                float[][] joints =
-                        new float[20][3];
+                float[][] joints = new float[20][3];
 
                 for (int i = 0; i < 20; i++) {
 
-                    joints[i][0] =
-                            readFloatLE(stream);
+                    joints[i][0] = readFloatLE(stream);
 
-                    joints[i][1] =
-                            readFloatLE(stream);
 
-                    joints[i][2] =
-                            readFloatLE(stream);
+                    joints[i][1] = readFloatLE(stream);
+
+
+                    joints[i][2] = readFloatLE(stream);
+
                 }
 
-                newPlayers.add(
-                        new PlayerSkeleton(
-                                trackingId,
-                                joints
-                        )
-                );
+                newPlayers.add(new PlayerSkeleton(trackingId,joints));
+
             }
 
-            /*
-             * Troca a lista inteira de uma vez.
-             *
-             * Isso evita o renderer pegar
-             * uma lista enquanto ela está
-             * sendo modificada.
-             */
             players = newPlayers;
 
         } catch (IOException e) {
-
             e.printStackTrace();
         }
     }
@@ -162,46 +109,30 @@ public class KinectReceiver extends Thread {
         return players;
     }
 
-    private int readIntLE(
-            DataInputStream stream)
-            throws IOException {
+    private int readIntLE(DataInputStream stream)throws IOException {
 
         int b1 = stream.readUnsignedByte();
         int b2 = stream.readUnsignedByte();
         int b3 = stream.readUnsignedByte();
         int b4 = stream.readUnsignedByte();
 
-        return
-                (b1) |
-                        (b2 << 8) |
-                        (b3 << 16) |
-                        (b4 << 24);
+        return (b1) | (b2 << 8) | (b3 << 16) | (b4 << 24);
     }
 
-    private long readLongLE(
-            DataInputStream stream)
-            throws IOException {
-
+    private long readLongLE(DataInputStream stream) throws IOException {
         long result = 0;
 
         for (int i = 0; i < 8; i++) {
 
-            result |=
-                    ((long)
-                            stream.readUnsignedByte())
-                            << (8 * i);
-        }
+            result |= ((long) stream.readUnsignedByte()) << (8 * i);
 
+        }
         return result;
     }
 
-    private float readFloatLE(
-            DataInputStream stream)
-            throws IOException {
+    private float readFloatLE(DataInputStream stream) throws IOException {
+        return Float.intBitsToFloat(readIntLE(stream));
 
-        return Float.intBitsToFloat(
-                readIntLE(stream)
-        );
     }
 
     public void stopReceiver() {
