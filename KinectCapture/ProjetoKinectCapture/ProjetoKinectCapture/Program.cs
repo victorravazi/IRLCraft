@@ -6,28 +6,18 @@ class Program
     {
         try
         {
-            KinectManager kinect =
-                new KinectManager();
+            KinectManager kinect = new KinectManager();
 
-            SkeletonRecorder recorder =
-                new SkeletonRecorder();
 
-            KinectUdpSender sender =
-               new KinectUdpSender(
-                   "127.0.0.1",
-                   25566
-               );
+            SkeletonRecorder recorder = new SkeletonRecorder();
 
-            kinect.SkeletonUpdated +=
-                recorder.AddFrame;
+            KinectUdpSender sender = new KinectUdpSender("127.0.0.1", 25566);
 
-            kinect.SkeletonUpdated +=
-               sender.Send;
+            kinect.SkeletonUpdated += recorder.AddFrame;
+            kinect.SkeletonUpdated += sender.Send;
 
-            using (SkeletonWindow window =
-                   new SkeletonWindow(
-                       kinect,
-                       recorder))
+
+            using (SkeletonWindow window = new SkeletonWindow(kinect, recorder))
             {
                 window.Run(60.0);
             }
@@ -36,7 +26,6 @@ class Program
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-
             Console.ReadLine();
         }
     }
