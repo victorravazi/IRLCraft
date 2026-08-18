@@ -3,6 +3,7 @@ package com.example.examplemod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
+import java.util.List;
 
 public class KinectRenderer {
 
@@ -13,39 +14,22 @@ public class KinectRenderer {
     }
 
     public void render(float partialTicks) {
-
         if (ModKinect.receiver == null)
             return;
 
-        float[][] joints =
-                ModKinect.receiver.getJoints();
+        List<PlayerSkeleton> players = ModKinect.receiver.getPlayers();
 
-        if (joints == null)
+        if (players == null || players.isEmpty())
             return;
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate(
-                mc.thePlayer.posX -
-                        mc.thePlayer.lastTickPosX +
-                        mc.thePlayer.lastTickPosX -
-                        mc.getRenderManager().viewerPosX,
 
-                mc.thePlayer.posY -
-                        mc.thePlayer.lastTickPosY +
-                        mc.thePlayer.lastTickPosY -
-                        mc.getRenderManager().viewerPosY,
-
-                mc.thePlayer.posZ -
-                        mc.thePlayer.lastTickPosZ +
-                        mc.thePlayer.lastTickPosZ -
-                        mc.getRenderManager().viewerPosZ
+        GlStateManager.translate(mc.thePlayer.posX - mc.thePlayer.lastTickPosX + mc.thePlayer.lastTickPosX - mc.getRenderManager().viewerPosX,
+                mc.thePlayer.posY - mc.thePlayer.lastTickPosY + mc.thePlayer.lastTickPosY - mc.getRenderManager().viewerPosY,
+                mc.thePlayer.posZ - mc.thePlayer.lastTickPosZ + mc.thePlayer.lastTickPosZ - mc.getRenderManager().viewerPosZ
         );
 
-        GlStateManager.scale(
-                1.0F,
-                1.0F,
-                1.0F
-        );
+        GlStateManager.scale(1.0F,1.0F,1.0F);
 
         GlStateManager.disableTexture2D();
         GlStateManager.disableLighting();
@@ -59,7 +43,14 @@ public class KinectRenderer {
 
         GL11.glLineWidth(5.0F);
 
-        for (int i = 0; i < 20; i++) {
+
+        for (PlayerSkeleton player : players) {
+            float[][] joints =
+                    player.getJoints();
+
+            if (joints == null)
+                continue;
+
             drawMinecraftPlayer(joints);
         }
 
@@ -72,10 +63,7 @@ public class KinectRenderer {
     }
 
 
-    private void drawCube(
-            float width,
-            float height,
-            float depth) {
+    private void drawCube(float width, float height,  float depth) {
 
         float x = width / 2.0F;
         float y = height / 2.0F;
@@ -89,7 +77,7 @@ public class KinectRenderer {
         GL11.glVertex3f(x, y, z);
         GL11.glVertex3f(-x, y, z);
 
-        // Trás
+        // Atras
         GL11.glVertex3f(x, -y, -z);
         GL11.glVertex3f(-x, -y, -z);
         GL11.glVertex3f(-x, y, -z);
@@ -122,12 +110,7 @@ public class KinectRenderer {
         GL11.glEnd();
     }
 
-    private void drawBodyPart(
-            float[] start,
-            float[] end,
-            float width,
-            float depth) {
-
+    private void drawBodyPart(float[] start, float[] end, float width, float depth) {
         float x1 = start[0];
         float y1 = start[1] + 1.3F;
         float z1 = start[2];
@@ -136,7 +119,7 @@ public class KinectRenderer {
         float y2 = end[1] + 1.3F;
         float z2 = end[2];
 
-        // Direção do membro
+        // Direçao do membro
         float dx = x2 - x1;
         float dy = y2 - y1;
         float dz = z2 - z1;
@@ -174,48 +157,25 @@ public class KinectRenderer {
             axisX /= axisLength;
             axisZ /= axisLength;
 
-            GL11.glRotatef(
-                    angle,
-                    axisX,
-                    axisY,
-                    axisZ
-            );
+            GL11.glRotatef(angle,axisX,axisY,axisZ);
 
         } else if (ny < 0.0F) {
-            GL11.glRotatef(
-                    180.0F,
-                    1.0F,
-                    0.0F,
-                    0.0F
-            );
+            GL11.glRotatef(180.0F,1.0F,0.0F,0.0F);
+
         }
 
-        /*
-         * Como o cubo é desenhado a partir do centro,
-         * precisamos movê-lo metade do comprimento
-         * para frente do pivot.
-         */
-        GL11.glTranslatef(
-                0.0F,
-                0.35F,
-                0.0F
-        );
 
-        GL11.glColor4f(
-                0.2F,
-                0.6F,
-                1.0F,
-                1.0F
-        );
+         // Como o cubo é desenhado a partir do centro,
+         // precisamos movê-lo metade do comprimento
+         // para frente do pivot.
+
+        GL11.glTranslatef(0.0F,0.35F,0.0F);
+        GL11.glColor4f(0.2F,0.6F,1.0F,1.0F);
 
         /*
          * Tamanho do membro.
          */
-        drawCube(
-                width,
-                0.70F,
-                depth
-        );
+        drawCube(width,0.70F,depth);
 
         GL11.glPopMatrix();
     }
@@ -223,24 +183,12 @@ public class KinectRenderer {
     private void drawHead(float[][] joints) {
         float[] head = joints[3];
         GL11.glPushMatrix();
-        GL11.glTranslatef(
-                head[0],
-                head[1] + 1.3F,
-                head[2]
-        );
+        GL11.glTranslatef(head[0],head[1] + 1.1F,head[2]);
 
-        GL11.glColor4f(
-                0.75F,
-                0.55F,
-                0.35F,
-                1.0F
-        );
+        GL11.glColor4f(0.75F,0.55F,0.35F,1.0F);
 
-        drawCube(
-                0.40F,
-                0.40F,
-                0.40F
-        );
+
+        drawCube(0.40F,0.40F,0.40F);
 
         GL11.glPopMatrix();
     }
@@ -252,73 +200,37 @@ public class KinectRenderer {
         float z = shoulder[2];
 
         GL11.glPushMatrix();
-        GL11.glTranslatef(
-                x,
-                y,
-                z
-        );
+        GL11.glTranslatef(x,y,z);
 
-        GL11.glColor4f(
-                0.0F,
-                0.8F,
-                0.0F,
-                1.0F
-        );
+        GL11.glColor4f(0.0F,0.8F,0.0F,1.0F);
 
-        drawCube(
-                0.45F,
-                0.60F,
-                0.20F
-        );
+        drawCube(0.45F,0.60F,0.20F);
 
         GL11.glPopMatrix();
     }
 
     private void drawLeftArm(float[][] joints) {
 
-        drawBodyPart(
-                joints[4],
-                joints[6],
-                0.18F,
-                0.18F
-        );
+        drawBodyPart(joints[4],joints[6],0.18F,0.18F);
 
     }
 
     private void drawRightArm(float[][] joints) {
 
-        drawBodyPart(
-                joints[8],
-                joints[10],
-                0.18F,
-                0.18F
-        );
+        drawBodyPart(joints[8],joints[10],0.18F,0.18F);
 
     }
 
     private void drawLeftLeg(float[][] joints) {
 
-        drawBodyPart(
-                joints[12],
-                joints[14],
-                0.20F,
-                0.20F
-        );
-
+        drawBodyPart(joints[12],joints[14],0.20F,0.20F);
     }
 
     private void drawRightLeg(float[][] joints) {
 
-        drawBodyPart(
-                joints[16],
-                joints[18],
-                0.20F,
-                0.20F
-        );
+        drawBodyPart(joints[16],joints[18],0.20F,0.20F);
+
     }
-
-
-
 
     private void drawMinecraftPlayer(
             float[][] joints) {
