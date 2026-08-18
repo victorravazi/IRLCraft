@@ -16,7 +16,7 @@ public class KinectReceiver extends Thread {
 
     private DatagramSocket socket;
 
-    private volatile List<PlayerSkeleton> players = new ArrayList<PlayerSkeleton>();
+    private volatile List<PlayerSkeleton> players = new ArrayList<>();
 
     public KinectReceiver(int port) {
         this.port = port;
@@ -65,7 +65,7 @@ public class KinectReceiver extends Thread {
                 return;
             }
 
-            List<PlayerSkeleton> newPlayers = new ArrayList<PlayerSkeleton>();
+            List<PlayerSkeleton> newPlayers = new ArrayList<>();
 
             for (int p = 0; p < playerCount; p++) {
 
