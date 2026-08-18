@@ -79,40 +79,22 @@ public class KinectUdpSender
         );
     }
 
-    private void WriteInt(
-        byte[] data,
-        int offset,
-        int value)
+    private void WriteInt(byte[] data, int offset, int value)
+
+
+
     {
-        data[offset] =
-            (byte)(value & 0xFF);
+        data[offset] = (byte)(value & 0xFF);
+        data[offset + 1] = (byte)((value >> 8) & 0xFF);
+        data[offset + 2] = (byte)((value >> 16) & 0xFF);
+        data[offset + 3] = (byte)((value >> 24) & 0xFF);
 
-        data[offset + 1] =
-            (byte)((value >> 8) & 0xFF);
-
-        data[offset + 2] =
-            (byte)((value >> 16) & 0xFF);
-
-        data[offset + 3] =
-            (byte)((value >> 24) & 0xFF);
     }
 
-    private void WriteFloat(
-        byte[] data,
-        int offset,
-        float value)
+    private void WriteFloat(byte[] data, int offset, float value)
     {
-        byte[] bytes =
-            BitConverter.GetBytes(value);
-
-
-        Buffer.BlockCopy(
-            bytes,
-            0,
-            data,
-            offset,
-            4
-        );
+        byte[] bytes = BitConverter.GetBytes(value);
+        Buffer.BlockCopy(bytes, 0, data, offset, 4);
     }
 
     public void Close()
