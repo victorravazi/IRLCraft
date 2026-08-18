@@ -20,17 +20,13 @@ public class ModKinect {
     public void init(FMLInitializationEvent event) {
         try {
 
-            receiver =
-                    new KinectReceiver(25566);
-
-            renderer =
-                    new KinectRenderer();
+            receiver = new KinectReceiver(25566);
+            receiver.start();
+            renderer = new KinectRenderer();
 
             MinecraftForge.EVENT_BUS.register(this);
 
-            System.out.println(
-                    "[KINECT] Receiver iniciado!"
-            );
+            System.out.println("[KINECT] Receiver iniciado!");
 
         } catch (Exception e) {
 
@@ -39,14 +35,10 @@ public class ModKinect {
     }
 
     @SubscribeEvent
-    public void onRenderWorld(
-            RenderWorldLastEvent event) {
-
+    public void onRenderWorld(RenderWorldLastEvent event) {
         if (renderer == null)
             return;
 
-        renderer.render(
-                event.partialTicks
-        );
+        renderer.render(event.partialTicks);
     }
 }
