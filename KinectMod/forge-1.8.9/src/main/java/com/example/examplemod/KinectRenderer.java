@@ -110,7 +110,7 @@ public class KinectRenderer {
         GL11.glEnd();
     }
 
-    private void drawBodyPart(float[] start, float[] end, float width, float depth) {
+    private void drawBodyPart(float[] start, float[] end, float width, float depth, float bodyLength) {
         float x1 = start[0];
         float y1 = start[1] + 1.3F;
         float z1 = start[2];
@@ -124,7 +124,7 @@ public class KinectRenderer {
         float dy = y2 - y1;
         float dz = z2 - z1;
 
-        float length =(float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        float length = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         if (length < 0.001F)
             return;
@@ -164,18 +164,17 @@ public class KinectRenderer {
 
         }
 
-
          // Como o cubo é desenhado a partir do centro,
          // precisamos movê-lo metade do comprimento
          // para frente do pivot.
 
-        GL11.glTranslatef(0.0F,0.35F,0.0F);
+        GL11.glTranslatef(0.0F, bodyLength / 2.0F,0.0F);
         GL11.glColor4f(0.2F,0.6F,1.0F,1.0F);
 
-        /*
-         * Tamanho do membro.
-         */
-        drawCube(width,0.70F,depth);
+
+        //Tamanho do membro.
+
+        drawCube(width,bodyLength ,depth);
 
         GL11.glPopMatrix();
     }
@@ -183,7 +182,7 @@ public class KinectRenderer {
     private void drawHead(float[][] joints) {
         float[] head = joints[3];
         GL11.glPushMatrix();
-        GL11.glTranslatef(head[0],head[1] + 1.1F,head[2]);
+        GL11.glTranslatef(head[0],head[1] + 1.3F,head[2]);
 
         GL11.glColor4f(0.75F,0.55F,0.35F,1.0F);
 
@@ -211,25 +210,68 @@ public class KinectRenderer {
 
     private void drawLeftArm(float[][] joints) {
 
-        drawBodyPart(joints[4],joints[6],0.18F,0.18F);
+        drawBodyPart(joints[4],joints[6],0.18F,0.18F, 0.55F);
 
     }
 
     private void drawRightArm(float[][] joints) {
 
-        drawBodyPart(joints[8],joints[10],0.18F,0.18F);
+        drawBodyPart(joints[8],joints[10],0.18F,0.18F, 0.55F);
 
     }
 
     private void drawLeftLeg(float[][] joints) {
+        float[] pivot = getLeftLegPivot(joints);
 
-        drawBodyPart(joints[12],joints[14],0.20F,0.20F);
+        drawBodyPart(pivot,joints[14],0.20F,0.20F, 0.70F);
     }
 
     private void drawRightLeg(float[][] joints) {
+        float[] pivot = getRightLegPivot(joints);
+        drawBodyPart(pivot,joints[18],0.20F,0.20F, 0.70F);
 
-        drawBodyPart(joints[16],joints[18],0.20F,0.20F);
+    }
 
+    private float[] getLeftLegPivot(float[][] joints) {
+
+        float[] leftHip = joints[12];
+        float[] rightHip = joints[16];
+
+        float centerX =
+                (leftHip[0] + rightHip[0]) / 2.0F;
+
+        float centerY =
+                (leftHip[1] + rightHip[1]) / 2.0F;
+
+        float centerZ =
+                (leftHip[2] + rightHip[2]) / 2.0F;
+
+        return new float[] {
+                centerX - 0.10F,
+                centerY,
+                centerZ
+        };
+    }
+
+    private float[] getRightLegPivot(float[][] joints) {
+
+        float[] leftHip = joints[12];
+        float[] rightHip = joints[16];
+
+        float centerX = (leftHip[0] + rightHip[0]) / 2.0F;
+
+
+        float centerY = (leftHip[1] + rightHip[1]) / 2.0F;
+
+
+        float centerZ = (leftHip[2] + rightHip[2]) / 2.0F;
+
+
+        return new float[] {
+                centerX + 0.10F,
+                centerY,
+                centerZ
+        };
     }
 
     private void drawMinecraftPlayer(

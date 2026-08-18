@@ -59,8 +59,6 @@ public class KinectManager
 
             CurrentSkeletons = trackedSkeletons;
 
-            Console.WriteLine("Pessoas detectadas: " + trackedSkeletons.Count);
-
             if (SkeletonsUpdated != null)
             {
                 SkeletonsUpdated(trackedSkeletons);
