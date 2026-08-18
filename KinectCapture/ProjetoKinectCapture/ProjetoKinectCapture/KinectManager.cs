@@ -1,13 +1,14 @@
 ﻿using Microsoft.Kinect;
 using System;
+using System.Collections.Generic;
 
 public class KinectManager
 {
     private KinectSensor sensor;
 
-    public Skeleton CurrentSkeleton { get; private set; }
+    public List<Skeleton> CurrentSkeletons { get; private set; }
 
-    public event Action<Skeleton> SkeletonUpdated;
+    public event Action<List<Skeleton>> SkeletonsUpdated;
 
     public bool IsRunning
     {
@@ -20,12 +21,11 @@ public class KinectManager
             throw new Exception("Kinect não encontrado.");
 
         sensor = KinectSensor.KinectSensors[0];
-
         sensor.SkeletonStream.Enable();
+        sensor.SkeletonFrameReady += OnSkeletonFrameReady;
 
-        sensor.SkeletonFrameReady +=
-            OnSkeletonFrameReady;
 
+        CurrentSkeletons = new List<Skeleton>();
         sensor.Start();
     }
 
@@ -33,41 +33,38 @@ public class KinectManager
         object sender,
         SkeletonFrameReadyEventArgs e)
     {
-        using (SkeletonFrame frame =
-               e.OpenSkeletonFrame())
+        using (SkeletonFrame frame = e.OpenSkeletonFrame())
         {
             if (frame == null)
                 return;
 
-            Skeleton[] skeletons =
-                new Skeleton[
-                    frame.SkeletonArrayLength
-                ];
+            Skeleton[] skeletons = new Skeleton[frame.SkeletonArrayLength];
 
-            frame.CopySkeletonDataTo(
-                skeletons
-            );
+            frame.CopySkeletonDataTo(skeletons);
+
+            List<Skeleton> trackedSkeletons = new List<Skeleton>();
 
             foreach (Skeleton skeleton in skeletons)
             {
-                if (skeleton.TrackingState ==
-                    SkeletonTrackingState.Tracked)
+                if (skeleton == null)
+                    continue;
+
+                if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                 {
-                    CurrentSkeleton =
-                        skeleton;
-
-                    if (SkeletonUpdated != null)
-                    {
-                        SkeletonUpdated(
-                            skeleton
-                        );
-                    }
-
-                    return;
+                    trackedSkeletons.Add(skeleton);
+                    if (trackedSkeletons.Count >= 2)
+                        break;
                 }
             }
 
-            CurrentSkeleton = null;
+            CurrentSkeletons = trackedSkeletons;
+
+            Console.WriteLine("Pessoas detectadas: " + trackedSkeletons.Count);
+
+            if (SkeletonsUpdated != null)
+            {
+                SkeletonsUpdated(trackedSkeletons);
+            }
         }
     }
 
@@ -76,7 +73,6 @@ public class KinectManager
         if (sensor != null)
         {
             sensor.Stop();
-
             sensor = null;
         }
     }
