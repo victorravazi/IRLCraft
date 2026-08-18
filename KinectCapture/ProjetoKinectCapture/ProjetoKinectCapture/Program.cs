@@ -7,20 +7,25 @@ class Program
         try
         {
             KinectManager kinect = new KinectManager();
-
-
-            SkeletonRecorder recorder = new SkeletonRecorder();
-
             KinectUdpSender sender = new KinectUdpSender("127.0.0.1", 25566);
 
-            kinect.SkeletonUpdated += recorder.AddFrame;
-            kinect.SkeletonUpdated += sender.Send;
+            kinect.SkeletonsUpdated += sender.Send;
+                
 
+            Console.WriteLine(
+                "Kinect iniciado."
+            );
 
-            using (SkeletonWindow window = new SkeletonWindow(kinect, recorder))
-            {
-                window.Run(60.0);
-            }
+            Console.WriteLine(
+                "Aguardando pessoas..."
+            );
+
+            Console.WriteLine(
+                "Pressione ENTER para sair."
+            );
+
+            Console.ReadLine();
+            kinect.Stop();
             sender.Close();
         }
         catch (Exception ex)
