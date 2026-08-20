@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="KinectManager.cs" />
-    <Compile Include="SkeletonFrameData.cs" />
     <Compile Include="KinectUdpSender.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
