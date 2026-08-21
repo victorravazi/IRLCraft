@@ -1,79 +1,24 @@
-=================================================================
-SETUP DE PROJETO FORGE 1.8.9 DO ZERO (IntelliJ + Windows)
-=================================================================
-
-PRE-REQUISITOS
------------------------------------------------------------------
+Passo 1:
 - JDK 8 instalado (ex: jdk1.8.0_202). Forge 1.8.9 / ForgeGradle 2.x
-  NAO funciona com JDK moderno (11+), nem para compilar nem para
-  rodar o proprio Gradle.
 - IntelliJ IDEA instalado.
-- MDK do Forge 1.8.9 baixado (Mod Development Kit) do site oficial
-  do Forge, ja extraido numa pasta do projeto.
-
-IMPORTANTE: Forge 1.8.9 usa Gradle 2.x (ex: 2.7), que e MUITO
-antigo. O IntelliJ moderno nao consegue sincronizar isso pela
-integracao nativa de Gradle (erro "Gradle 2.7 is not supported.
-Minimum supported version is 4.6"). Por isso, todo o processo
-abaixo e feito via TERMINAL, usando o gradlew do projeto, e nao
-pela sincronizacao automatica do IntelliJ.
-
-
-PASSO 1 - Configurar JAVA_HOME para JDK 8 (por sessao de terminal)
------------------------------------------------------------------
-No CMD, na pasta do projeto:
+- MDK do Forge 1.8.9 baixado 
 
     set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_202
 
-(ajuste o caminho para onde seu JDK 8 estiver instalado).
-Precisa rodar isso toda vez que abrir um terminal novo, a menos
-que voce configure isso como variavel de ambiente permanente do
-Windows.
-
-
-PASSO 2 - Rodar setupDecompWorkspace
------------------------------------------------------------------
-Ainda no terminal, na raiz do projeto (onde fica o gradlew.bat):
-
+Passo 2:
     gradlew setupDecompWorkspace
 
-Isso baixa as dependencias do Minecraft/Forge e descompila o jogo.
-Pode demorar bastante na primeira vez. Se depois disso aparecerem
-varias tasks "SKIPPED" em execucoes futuras, e normal - geralmente
-significa UP-TO-DATE (cache do Gradle ja tinha essas saidas).
+ Abrir a pasta no IntelliJ 
 
-Confirme que terminou com "BUILD SUCCESSFUL".
-
-
-PASSO 3 - Abrir a pasta no IntelliJ (sem deixar sincronizar Gradle)
------------------------------------------------------------------
-1. No IntelliJ: File > Open > selecione a PASTA do projeto (nao o
-   build.gradle).
-2. Se aparecer popup pedindo para importar/sincronizar como projeto
-   Gradle, CANCELE. Nao deixe ele tentar (vai falhar por causa da
-   versao antiga do Gradle).
-3. O objetivo aqui e so deixar o IntelliJ criar a pasta .idea/ com
+O objetivo aqui e so deixar o IntelliJ criar a pasta .idea/ com
    o workspace.xml basico.
 
-
-PASSO 4 - Rodar a task "idea" (gera os arquivos de modulo/classpath)
------------------------------------------------------------------
-Feche o IntelliJ completamente antes deste passo (evita conflito
-de escrita nos arquivos).
-
-No terminal (com JAVA_HOME ainda apontado pro JDK 8):
-
+Feche o IntelliJ completamente antes deste passo 
     gradlew idea
 
-Essa task e do plugin IDEA do proprio Gradle (independente da
-sincronizacao nativa do IntelliJ). Ela gera/atualiza os arquivos
-.iml com as dependencias corretas do modulo - incluindo a
-biblioteca que contem a classe GradleStart (necessaria pra rodar
-o client) - alem de um .ipr e .iws proprios.
 
-
-PASSO 5 - Corrigir o workspace.xml se necessario (RunManager)
------------------------------------------------------------------
+Passo 3: 
+Corrigir o workspace.xml se necessario (RunManager)
 Se ao rodar o proximo passo (genIntellijRuns) der o erro:
 
     java.lang.NullPointerException
@@ -82,8 +27,6 @@ Se ao rodar o proximo passo (genIntellijRuns) der o erro:
 
 Isso significa que o workspace.xml/.iws gerado nao tem o
 componente RunManager que o ForgeGradle espera encontrar
-(comum em versoes modernas do IntelliJ, que geram workspace.xml
-mais enxuto que o esperado por essa versao antiga do ForgeGradle).
 
 Correcao manual:
 1. Feche o IntelliJ completamente.
@@ -96,65 +39,11 @@ Correcao manual:
 4. Salve o arquivo.
 
 
-PASSO 6 - Rodar genIntellijRuns
------------------------------------------------------------------
-Com o IntelliJ ainda fechado, no terminal:
-
+Passo 4: 
     gradlew genIntellijRuns
 
-Isso injeta as run configurations (ex: "Minecraft Client") dentro
-do workspace.xml/.iws. Deve terminar com BUILD SUCCESSFUL.
 
-Nota: essa task PRECISA que o workspace ja exista (por isso os
-passos 3, 4 e 5 vem antes dela). Se der erro "Intellij workspace
-file could not be found", volte pro Passo 3/4.
+Passo 5: Abrir o projeto pelo arquivo .ipr
 
 
-PASSO 7 - Abrir o projeto pelo arquivo .ipr
------------------------------------------------------------------
-Abra o IntelliJ e use File > Open, mas desta vez selecione o
-arquivo .ipr gerado na raiz do projeto (nao a pasta). Isso garante
-que o IntelliJ carregue exatamente a estrutura de modulos e
-dependencias que o Gradle acabou de gerar no Passo 4, evitando
-divergencia de nome de modulo (que causaria erro de classe
-GradleStart nao encontrada).
 
-
-PASSO 8 - Rodar o Minecraft Client
------------------------------------------------------------------
-No dropdown de run configurations (canto superior direito do
-IntelliJ), selecione "Minecraft Client" (ou nome similar gerado
-pelo genIntellijRuns) e rode.
-
-Se der "Could not find or load main class GradleStart", volte no
-Passo 4 (gradlew idea) - geralmente o classpath do modulo nao foi
-gerado corretamente.
-
-
-CUIDADOS COM O .gitignore
------------------------------------------------------------------
-- A pasta run/ (saves, options.txt, logs) normalmente PODE ser
-  ignorada - ela e recriada ao rodar o client.
-- CUIDADO ao ignorar .idea/ inteira: isso corta as run
-  configurations (workspace.xml) que voce acabou de configurar
-  manualmente. Se quiser versionar isso para nao repetir o processo
-  em outra maquina, pode versionar so o .idea/runConfigurations/ e
-  ignorar o resto de .idea/ (workspace.xml tem preferencias locais
-  que normalmente nao fazem sentido versionar, MAS nesse caso
-  especifico do Forge 1.8.9 pode valer a pena manter, ja que o
-  RunManager foi feito na mao).
-- build/, .gradle/ e out/ podem ser ignorados normalmente (gerados
-  pelo Gradle).
-
-
-ALTERNATIVA SE O IntelliJ INSISTIR EM SINCRONIZAR COMO GRADLE
------------------------------------------------------------------
-Se mesmo abrindo so a pasta o IntelliJ forcar deteccao do
-build.gradle e tentar sincronizar (algumas versoes novas fazem
-isso automaticamente), o caminho alternativo e:
-
-    gradlew eclipse
-
-E importar no IntelliJ via File > New > Project from Existing
-Sources > Eclipse. Isso contorna completamente o fluxo de
-sincronizacao Gradle nativo do IntelliJ.
