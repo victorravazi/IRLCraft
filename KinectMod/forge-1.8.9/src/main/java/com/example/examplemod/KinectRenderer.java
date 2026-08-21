@@ -543,7 +543,29 @@ public class KinectRenderer {
         );
     }
 
-    private void drawBodyPart(float[] start, float[] end, float width, float depth, float visualLength, int texturePart) {
+    private int[] computeArmUV(int u, int v, int w, int h, int d) {
+
+        int yTip = v + d + h;   // ponta do braço (mão)
+        int yBase = v + d;      // topo do braço (ombro)
+        int yEdge = v;          // borda das "tampas" (top/bottom)
+
+        return new int[] {
+                // FRONT
+                u + d, yTip, u + d + w, yBase,
+                // BACK
+                u + 2 * d + w, yTip, u + 2 * d + 2 * w, yBase,
+                // LEFT
+                u, yTip, u + d, yBase,
+                // RIGHT
+                u + d + w, yTip, u + 2 * d + w, yBase,
+                // TOP
+                u + d + w, yBase, u + d + 2 * w, yEdge,
+                // BOTTOM
+                u + d, yBase, u + d + w, yEdge
+        };
+    }
+
+    private void drawBodyPart(float[] start, float[] end, float width, float depth, float visualLength, int texturePart, boolean slim) {
         float x1 = start[0];
         float y1 = start[1] + 1.3F;
         float z1 = start[2];
@@ -601,46 +623,36 @@ public class KinectRenderer {
 
 
         if (texturePart == 1) {
+            int[] uv = computeArmUV(32, 48, slim ? 3 : 4, 12, 4);
             // Braço esquerdo
             drawTexturedCube(
                     width,
                     visualLength,
                     depth,
 
-                    // FRONT
-                    36, 64, 40, 52,
-                    // BACK
-                    44, 64, 48, 52,
-                    // LEFT
-                    32, 64, 36, 52,
-                    // RIGHT
-                    40, 64, 44, 52,
-                    // TOP
-                    40, 52, 44, 48,
-                    // BOTTOM
-                    36, 52, 40, 48
+
+                    uv[0], uv[1], uv[2], uv[3],     // FRONT
+                    uv[4], uv[5], uv[6], uv[7],     // BACK
+                    uv[8], uv[9], uv[10], uv[11],   // LEFT
+                    uv[12], uv[13], uv[14], uv[15], // RIGHT
+                    uv[16], uv[17], uv[18], uv[19], // TOP
+                    uv[20], uv[21], uv[22], uv[23]  // BOTTOM
             );
 
         } else if (texturePart == 2) {
-
+            int[] uv = computeArmUV(40, 16, slim ? 3 : 4, 12, 4);
             // Braço direito
             drawTexturedCube(
                     width,
                     visualLength,
                     depth,
 
-                    // FRONT
-                    44, 32, 48, 20,
-                    // BACK
-                    52, 32, 56, 20,
-                    // LEFT
-                    40, 32, 44, 20,
-                    // RIGHT
-                    48, 32, 52, 20,
-                    // TOP
-                    48, 16, 52, 20,
-                    // BOTTOM
-                    44, 16, 48, 20
+                    uv[0], uv[1], uv[2], uv[3],     // FRONT
+                    uv[4], uv[5], uv[6], uv[7],     // BACK
+                    uv[8], uv[9], uv[10], uv[11],   // LEFT
+                    uv[12], uv[13], uv[14], uv[15], // RIGHT
+                    uv[16], uv[17], uv[18], uv[19], // TOP
+                    uv[20], uv[21], uv[22], uv[23]  // BOTTOM
             );
 
         } else {
@@ -1073,17 +1085,21 @@ public class KinectRenderer {
         GL11.glPopMatrix();
     }
 
-    private void drawLeftArm(float[][] joints) {
+    private void drawLeftArm(float[][] joints, boolean slim) {
         float[] pivot = getLeftArmPivot(joints);
 
-        drawBodyPart(pivot,joints[6],0.18F,0.18F, 0.55F,1);
+        float armWidth = slim ? 0.135F : 0.18F;
+
+        drawBodyPart(pivot,joints[6],0.18F,0.18F, 0.55F,1,slim);
 
     }
 
-    private void drawRightArm(float[][] joints) {
+    private void drawRightArm(float[][] joints, boolean slim) {
         float[] pivot = getRightArmPivot(joints);
 
-        drawBodyPart(pivot,joints[10],0.18F,0.18F, 0.55F,2);
+        float armWidth = slim ? 0.135F : 0.18F;
+
+        drawBodyPart(pivot,joints[10],0.18F,0.18F, 0.55F,2,slim);
 
     }
 
@@ -1211,13 +1227,15 @@ public class KinectRenderer {
         mc.getTextureManager()
                 .bindTexture(skin);
 
+        boolean slim = player.getSkin() == SkinType.ALEX;
+
         drawHead(joints);
 
         drawTorso(joints);
 
-        drawLeftArm(joints);
+        drawLeftArm(joints,slim);
 
-        drawRightArm(joints);
+        drawRightArm(joints,slim);
 
         drawLeftLeg(joints);
 
