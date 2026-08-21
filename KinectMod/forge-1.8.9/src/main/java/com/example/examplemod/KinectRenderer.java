@@ -211,11 +211,7 @@ public class KinectRenderer {
         float y = height / 2.0F;
         float z = depth / 2.0F;
 
-        /*
-         * Minecraft utiliza uma textura 64x64.
-         *
-         * O OpenGL usa coordenadas de 0 até 1.
-         */
+
         float textureSize = 64.0F;
 
         /*
@@ -225,25 +221,25 @@ public class KinectRenderer {
 
         GL11.glTexCoord2f(
                 frontU1 / textureSize,
-                1.0F - frontV1 / textureSize
+                frontV2 / textureSize
         );
         GL11.glVertex3f(-x, -y, z);
 
         GL11.glTexCoord2f(
                 frontU2 / textureSize,
-                1.0F - frontV1 / textureSize
+                frontV2 / textureSize
         );
         GL11.glVertex3f(x, -y, z);
 
         GL11.glTexCoord2f(
                 frontU2 / textureSize,
-                1.0F - frontV2 / textureSize
+                frontV1 / textureSize
         );
         GL11.glVertex3f(x, y, z);
 
         GL11.glTexCoord2f(
                 frontU1 / textureSize,
-                1.0F - frontV2 / textureSize
+                frontV1 / textureSize
         );
         GL11.glVertex3f(-x, y, z);
 
@@ -252,25 +248,25 @@ public class KinectRenderer {
          */
         GL11.glTexCoord2f(
                 backU1 / textureSize,
-                1.0F - backV1 / textureSize
+                backV2 / textureSize
         );
         GL11.glVertex3f(x, -y, -z);
 
         GL11.glTexCoord2f(
                 backU2 / textureSize,
-                1.0F - backV1 / textureSize
+                backV2 / textureSize
         );
         GL11.glVertex3f(-x, -y, -z);
 
         GL11.glTexCoord2f(
                 backU2 / textureSize,
-                1.0F - backV2 / textureSize
+                backV1 / textureSize
         );
         GL11.glVertex3f(-x, y, -z);
 
         GL11.glTexCoord2f(
                 backU1 / textureSize,
-                1.0F - backV2 / textureSize
+                backV1 / textureSize
         );
         GL11.glVertex3f(x, y, -z);
 
@@ -279,25 +275,25 @@ public class KinectRenderer {
          */
         GL11.glTexCoord2f(
                 leftU1 / textureSize,
-                1.0F - leftV1 / textureSize
+                leftV2 / textureSize
         );
         GL11.glVertex3f(-x, -y, -z);
 
         GL11.glTexCoord2f(
                 leftU2 / textureSize,
-                1.0F - leftV1 / textureSize
+                leftV2 / textureSize
         );
         GL11.glVertex3f(-x, -y, z);
 
         GL11.glTexCoord2f(
                 leftU2 / textureSize,
-                1.0F - leftV2 / textureSize
+                leftV1 / textureSize
         );
         GL11.glVertex3f(-x, y, z);
 
         GL11.glTexCoord2f(
                 leftU1 / textureSize,
-                1.0F - leftV2 / textureSize
+                leftV1 / textureSize
         );
         GL11.glVertex3f(-x, y, -z);
 
@@ -306,25 +302,25 @@ public class KinectRenderer {
          */
         GL11.glTexCoord2f(
                 rightU1 / textureSize,
-                1.0F - rightV1 / textureSize
+                rightV2 / textureSize
         );
         GL11.glVertex3f(x, -y, z);
 
         GL11.glTexCoord2f(
                 rightU2 / textureSize,
-                1.0F - rightV1 / textureSize
+                rightV2 / textureSize
         );
         GL11.glVertex3f(x, -y, -z);
 
         GL11.glTexCoord2f(
                 rightU2 / textureSize,
-                1.0F - rightV2 / textureSize
+                rightV1 / textureSize
         );
         GL11.glVertex3f(x, y, -z);
 
         GL11.glTexCoord2f(
                 rightU1 / textureSize,
-                1.0F - rightV2 / textureSize
+                rightV1 / textureSize
         );
         GL11.glVertex3f(x, y, z);
 
@@ -333,25 +329,25 @@ public class KinectRenderer {
          */
         GL11.glTexCoord2f(
                 topU1 / textureSize,
-                1.0F - topV1 / textureSize
+                topV1 / textureSize
         );
         GL11.glVertex3f(-x, y, z);
 
         GL11.glTexCoord2f(
                 topU2 / textureSize,
-                1.0F - topV1 / textureSize
+                topV1 / textureSize
         );
         GL11.glVertex3f(x, y, z);
 
         GL11.glTexCoord2f(
                 topU2 / textureSize,
-                1.0F - topV2 / textureSize
+                topV2 / textureSize
         );
         GL11.glVertex3f(x, y, -z);
 
         GL11.glTexCoord2f(
                 topU1 / textureSize,
-                1.0F - topV2 / textureSize
+                topV2 / textureSize
         );
         GL11.glVertex3f(-x, y, -z);
 
@@ -360,25 +356,25 @@ public class KinectRenderer {
          */
         GL11.glTexCoord2f(
                 bottomU1 / textureSize,
-                1.0F - bottomV1 / textureSize
+                bottomV1 / textureSize
         );
         GL11.glVertex3f(-x, -y, -z);
 
         GL11.glTexCoord2f(
                 bottomU2 / textureSize,
-                1.0F - bottomV1 / textureSize
+                bottomV1 / textureSize
         );
         GL11.glVertex3f(x, -y, -z);
 
         GL11.glTexCoord2f(
                 bottomU2 / textureSize,
-                1.0F - bottomV2 / textureSize
+                bottomV2 / textureSize
         );
         GL11.glVertex3f(x, -y, z);
 
         GL11.glTexCoord2f(
                 bottomU1 / textureSize,
-                1.0F - bottomV2 / textureSize
+                bottomV2 / textureSize
         );
         GL11.glVertex3f(-x, -y, z);
 
@@ -547,7 +543,7 @@ public class KinectRenderer {
         );
     }
 
-    private void drawBodyPart(float[] start, float[] end, float width, float depth, float visualLength) {
+    private void drawBodyPart(float[] start, float[] end, float width, float depth, float visualLength, int texturePart) {
         float x1 = start[0];
         float y1 = start[1] + 1.3F;
         float z1 = start[2];
@@ -601,17 +597,71 @@ public class KinectRenderer {
 
         }
 
-         // Como o cubo é desenhado a partir do centro,
-         // precisamos movê-lo metade do comprimento
-         // para frente do pivot.
-
         GL11.glTranslatef(0.0F, visualLength / 2.0F,0.0F);
-        GL11.glColor4f(0.2F,0.6F,1.0F,1.0F);
 
-        //Tamanho do membro.
-        drawCube(width,visualLength ,depth);
+
+        if (texturePart == 1) {
+            // Braço esquerdo
+            drawTexturedCube(
+                    width,
+                    visualLength,
+                    depth,
+
+                    // FRONT
+                    36, 64, 40, 52,
+                    // BACK
+                    44, 64, 48, 52,
+                    // LEFT
+                    32, 64, 36, 52,
+                    // RIGHT
+                    40, 64, 44, 52,
+                    // TOP
+                    40, 52, 44, 48,
+                    // BOTTOM
+                    36, 52, 40, 48
+            );
+
+        } else if (texturePart == 2) {
+
+            // Braço direito
+            drawTexturedCube(
+                    width,
+                    visualLength,
+                    depth,
+
+                    // FRONT
+                    44, 32, 48, 20,
+                    // BACK
+                    52, 32, 56, 20,
+                    // LEFT
+                    40, 32, 44, 20,
+                    // RIGHT
+                    48, 32, 52, 20,
+                    // TOP
+                    48, 16, 52, 20,
+                    // BOTTOM
+                    44, 16, 48, 20
+            );
+
+        } else {
+
+            // Mantém o cubo normal para as outras partes
+            GL11.glColor4f(
+                    0.2F,
+                    0.6F,
+                    1.0F,
+                    1.0F
+            );
+
+            drawCube(
+                    width,
+                    visualLength,
+                    depth
+            );
+        }
 
         GL11.glPopMatrix();
+
     }
 
     private void drawHead(float[][] joints) {
@@ -1026,14 +1076,14 @@ public class KinectRenderer {
     private void drawLeftArm(float[][] joints) {
         float[] pivot = getLeftArmPivot(joints);
 
-        drawBodyPart(pivot,joints[6],0.18F,0.18F, 0.55F);
+        drawBodyPart(pivot,joints[6],0.18F,0.18F, 0.55F,1);
 
     }
 
     private void drawRightArm(float[][] joints) {
         float[] pivot = getRightArmPivot(joints);
 
-        drawBodyPart(pivot,joints[10],0.18F,0.18F, 0.55F);
+        drawBodyPart(pivot,joints[10],0.18F,0.18F, 0.55F,2);
 
     }
 
