@@ -496,17 +496,17 @@ public class KinectRenderer {
                 0.70F,
                 0.20F,
 
-                // Frente
-                4, 20, 8, 32,
+                // FRONT
+                4, 32, 8, 20,
 
-                // Trás
-                12, 20, 16, 32,
+                // BACK
+                12, 32, 16, 20,
 
-                // Esquerda
-                0, 20, 4, 32,
+                // LEFT
+                0, 32, 4, 20,
 
-                // Direita
-                8, 20, 12, 32,
+                // RIGHT
+                8, 32, 12, 20,
 
                 // Cima
                 4, 16, 8, 20,
@@ -523,17 +523,17 @@ public class KinectRenderer {
                 0.70F,
                 0.20F,
 
-                // Frente
-                20, 52, 24, 64,
+                // FRONT
+                20, 64, 24, 52,
 
-                // Trás
-                28, 52, 32, 64,
+// BACK
+                28, 64, 32, 52,
 
-                // Esquerda
-                16, 52, 20, 64,
+// LEFT
+                16, 64, 20, 52,
 
-                // Direita
-                24, 52, 28, 64,
+                // RIGHT
+                24, 64, 28, 52,
 
                 // Cima
                 20, 48, 24, 52,
@@ -976,7 +976,8 @@ public class KinectRenderer {
             float[] knee,
             float width,
             float depth,
-            float visualLength) {
+            float visualLength,
+            int texturePart) {
 
         float dx = knee[0] - pivot[0];
         float dy = knee[1] - pivot[1];
@@ -1069,18 +1070,31 @@ public class KinectRenderer {
                 0.0F
         );
 
-        GL11.glColor4f(
-                0.2F,
-                0.6F,
-                1.0F,
-                1.0F
-        );
+        if (texturePart == 1) {
 
-        drawCube(
-                width,
-                visualLength,
-                depth
-        );
+            // Perna esquerda
+            drawTexturedLeftLeg();
+
+        } else if (texturePart == 2) {
+
+            // Perna direita
+            drawTexturedRightLeg();
+
+        } else {
+
+            GL11.glColor4f(
+                    0.2F,
+                    0.6F,
+                    1.0F,
+                    1.0F
+            );
+
+            drawCube(
+                    width,
+                    visualLength,
+                    depth
+            );
+        }
 
         GL11.glPopMatrix();
     }
@@ -1113,7 +1127,8 @@ public class KinectRenderer {
                 joints[14],
                 0.20F,
                 0.20F,
-                0.70F
+                0.70F,
+                1
         );
     }
 
@@ -1127,7 +1142,8 @@ public class KinectRenderer {
                 joints[18],
                 0.20F,
                 0.20F,
-                0.70F
+                0.70F,
+                2
         );
     }
 
