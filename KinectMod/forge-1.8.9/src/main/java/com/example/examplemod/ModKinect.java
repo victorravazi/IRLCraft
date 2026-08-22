@@ -25,6 +25,7 @@ public class ModKinect {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        KinectSkinManager.testNickname("Jocadu");
         try {
             openSkinGui = new KeyBinding(
                     "Abrir configuração do Kinect",
