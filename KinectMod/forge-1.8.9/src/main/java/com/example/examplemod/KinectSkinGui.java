@@ -25,7 +25,7 @@ public class KinectSkinGui extends GuiScreen {
                 0,
                 this.fontRendererObj,
                 centerX - 100,
-                70,
+                115,
                 200,
                 20
         );
@@ -45,7 +45,7 @@ public class KinectSkinGui extends GuiScreen {
                 1,
                 this.fontRendererObj,
                 centerX - 100,
-                150,
+                160,
                 200,
                 20
         );
@@ -65,7 +65,7 @@ public class KinectSkinGui extends GuiScreen {
                 new GuiButton(
                         10,
                         centerX - 105,
-                        40,
+                        30,
                         100,
                         20,
                         "Jogador 1"
@@ -79,7 +79,7 @@ public class KinectSkinGui extends GuiScreen {
                 new GuiButton(
                         11,
                         centerX + 5,
-                        40,
+                        30,
                         100,
                         20,
                         "Jogador 2"
@@ -93,7 +93,7 @@ public class KinectSkinGui extends GuiScreen {
                 new GuiButton(
                         20,
                         centerX - 105,
-                        100,
+                        60,
                         100,
                         20,
                         "Steve"
@@ -107,7 +107,7 @@ public class KinectSkinGui extends GuiScreen {
                 new GuiButton(
                         21,
                         centerX + 5,
-                        100,
+                        60,
                         100,
                         20,
                         "Alex"
@@ -121,7 +121,7 @@ public class KinectSkinGui extends GuiScreen {
                 new GuiButton(
                         30,
                         centerX - 100,
-                        190,
+                        200,
                         200,
                         20,
                         "Salvar"
@@ -136,9 +136,7 @@ public class KinectSkinGui extends GuiScreen {
         KinectPlayerManager manager =
                 ModKinect.playerManager;
 
-        /*
-         * Selecionar jogador.
-         */
+
         if (button.id == 10) {
 
             selectedPlayer = 1;
@@ -173,6 +171,9 @@ public class KinectSkinGui extends GuiScreen {
          */
         else if (button.id == 30) {
 
+            String nickname1 = nicknamePlayer1.getText();
+            String nickname2 = nicknamePlayer2.getText();
+
             manager
                     .getPlayer1()
                     .setNickname(
@@ -184,6 +185,20 @@ public class KinectSkinGui extends GuiScreen {
                     .setNickname(
                             nicknamePlayer2.getText()
                     );
+
+            if (!nickname1.trim().isEmpty()) {
+
+                KinectSkinManager.testNickname(
+                        nickname1
+                );
+            }
+
+            if (!nickname2.trim().isEmpty()) {
+
+                KinectSkinManager.testNickname(
+                        nickname2
+                );
+            }
 
             this.mc.displayGuiScreen(null);
         }
@@ -241,16 +256,12 @@ public class KinectSkinGui extends GuiScreen {
             int mouseY,
             float partialTicks) {
 
-        /*
-         * Fundo escuro.
-         */
+
         this.drawDefaultBackground();
 
         int centerX = this.width / 2;
 
-        /*
-         * Título.
-         */
+
         this.drawCenteredString(
                 this.fontRendererObj,
                 "KinectCraft",
@@ -259,34 +270,25 @@ public class KinectSkinGui extends GuiScreen {
                 0xFFFFFF
         );
 
-        /*
-         * Jogador 1.
-         */
         this.drawCenteredString(
                 this.fontRendererObj,
                 "Jogador 1",
                 centerX,
-                60,
+                100,
                 0xFFFFFF
         );
 
-        /*
-         * Jogador 2.
-         */
         this.drawCenteredString(
                 this.fontRendererObj,
                 "Jogador 2",
                 centerX,
-                140,
+                145,
                 0xFFFFFF
         );
 
-        /*
-         * Skin.
-         */
         this.drawCenteredString(
                 this.fontRendererObj,
-                "Skin",
+                "",
                 centerX,
                 90,
                 0xFFFFFF
