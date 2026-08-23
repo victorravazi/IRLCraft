@@ -34,11 +34,6 @@ public class KinectRenderer {
 
         GlStateManager.pushMatrix();
 
-        /*
-         * Seu código original de posicionamento
-         * do Kinect no Minecraft deve permanecer aqui.
-         */
-
         GlStateManager.disableLighting();
 
         GlStateManager.enableBlend();
@@ -388,22 +383,17 @@ public class KinectRenderer {
                 0.40F,
                 0.40F,
 
-                // Frente
+                // FRONT
                 8, 8, 16, 16,
-
-                // Trás
+                // BACK
                 24, 8, 32, 16,
-
-                // Esquerda
+                // LEFT
                 0, 8, 8, 16,
-
-                // Direita
+                // RIGHT
                 16, 8, 24, 16,
-
-                // Cima
+                // UP
                 8, 0, 16, 8,
-
-                // Baixo
+                // DOWN
                 16, 0, 24, 8
         );
     }
@@ -415,22 +405,17 @@ public class KinectRenderer {
                 0.60F,
                 0.20F,
 
-                // Frente
+                // FRONT
                 20, 20, 28, 32,
-
-                // Trás
+                // BACK
                 32, 20, 40, 32,
-
-                // Esquerda
+                // LEFT
                 16, 20, 20, 32,
-
-                // Direita
+                // RIGHT
                 28, 20, 32, 32,
-
-                // Cima
+                // UP
                 20, 16, 28, 20,
-
-                // Baixo
+                // DOWN
                 28, 16, 36, 20
         );
     }
@@ -442,22 +427,17 @@ public class KinectRenderer {
                 0.70F,
                 0.18F,
 
-                // Frente
+                // FRONT
                 44, 20, 48, 32,
-
-                // Trás
+                // BACK
                 52, 20, 56, 32,
-
-                // Esquerda
+                // LEFT
                 40, 20, 44, 32,
-
-                // Direita
+                // RIGHT
                 48, 20, 52, 32,
-
-                // Cima
+                // UP
                 44, 16, 48, 20,
-
-                // Baixo
+                // DOWN
                 48, 16, 52, 20
         );
     }
@@ -469,22 +449,17 @@ public class KinectRenderer {
                 0.70F,
                 0.18F,
 
-                // Frente
+                // FRONT
                 36, 52, 40, 64,
-
-                // Trás
+                // BACK
                 44, 52, 48, 64,
-
-                // Esquerda
+                // LEFT
                 32, 52, 36, 64,
-
-                // Direita
+                // RIGHT
                 40, 52, 44, 64,
-
-                // Cima
+                // UP
                 36, 48, 40, 52,
-
-                // Baixo
+                // DOWN
                 40, 48, 44, 52
         );
     }
@@ -498,20 +473,15 @@ public class KinectRenderer {
 
                 // FRONT
                 4, 32, 8, 20,
-
                 // BACK
                 12, 32, 16, 20,
-
                 // LEFT
                 0, 32, 4, 20,
-
                 // RIGHT
                 8, 32, 12, 20,
-
-                // Cima
+                // UP
                 4, 16, 8, 20,
-
-                // Baixo
+                // DOWN
                 8, 16, 12, 20
         );
     }
@@ -525,20 +495,15 @@ public class KinectRenderer {
 
                 // FRONT
                 20, 64, 24, 52,
-
-// BACK
+                // BACK
                 28, 64, 32, 52,
-
-// LEFT
+                // LEFT
                 16, 64, 20, 52,
-
                 // RIGHT
                 24, 64, 28, 52,
-
-                // Cima
+                // UP
                 20, 48, 24, 52,
-
-                // Baixo
+                // DOWN
                 24, 48, 28, 52
         );
     }
@@ -695,27 +660,17 @@ public class KinectRenderer {
 
         GL11.glPushMatrix();
 
-        /*
-         * Mesma origem utilizada pelo torso.
-         */
+
         GL11.glTranslatef(
                 centerX,
                 centerY - 0.30F + 1.3F,
                 centerZ
         );
 
-        /*
-         * A cabeça acompanha a orientação
-         * do torso.
-         */
+
         applyTorsoRotation(joints);
 
-        /*
-         * Posição da cabeça em relação ao torso.
-         *
-         * Como estamos dentro da matriz do torso,
-         * este movimento é LOCAL.
-         */
+
         GL11.glTranslatef(
                 0.0F,
                 0.50F,
@@ -772,9 +727,7 @@ public class KinectRenderer {
         float[] leftHip = joints[12];
         float[] rightHip = joints[16];
 
-        /*
-         * Centro dos ombros
-         */
+
         float shoulderCenterX =
                 (leftShoulder[0] + rightShoulder[0]) / 2.0F;
 
@@ -784,9 +737,7 @@ public class KinectRenderer {
         float shoulderCenterZ =
                 (leftShoulder[2] + rightShoulder[2]) / 2.0F;
 
-        /*
-         * Centro dos quadris
-         */
+
         float hipCenterX =
                 (leftHip[0] + rightHip[0]) / 2.0F;
 
@@ -796,13 +747,6 @@ public class KinectRenderer {
         float hipCenterZ =
                 (leftHip[2] + rightHip[2]) / 2.0F;
 
-        /*
-         * ------------------------------------------------
-         * EIXO X
-         *
-         * Direção dos ombros.
-         * ------------------------------------------------
-         */
 
         float xX =
                 rightShoulder[0] - leftShoulder[0];
@@ -827,14 +771,6 @@ public class KinectRenderer {
         xY /= xLength;
         xZ /= xLength;
 
-        /*
-         * ------------------------------------------------
-         * EIXO Y
-         *
-         * Direção dos quadris para os ombros.
-         * ------------------------------------------------
-         */
-
         float yX =
                 shoulderCenterX - hipCenterX;
 
@@ -857,14 +793,6 @@ public class KinectRenderer {
         yX /= yLength;
         yY /= yLength;
         yZ /= yLength;
-
-        /*
-         * ------------------------------------------------
-         * EIXO Z
-         *
-         * Perpendicular aos dois anteriores.
-         * ------------------------------------------------
-         */
 
         float zX =
                 xY * yZ -
@@ -892,22 +820,9 @@ public class KinectRenderer {
         zY /= zLength;
         zZ /= zLength;
 
-        /*
-         * Corrige a orientação para a frente
-         * do boneco.
-         *
-         * Se o torso ficar olhando para trás,
-         * inverteremos este eixo.
-         */
         zX = -zX;
         zY = -zY;
         zZ = -zZ;
-
-        /*
-         * Recalcula o eixo X para garantir
-         * que os três eixos permaneçam
-         * perfeitamente perpendiculares.
-         */
 
         xX =
                 yY * zZ -
@@ -921,9 +836,7 @@ public class KinectRenderer {
                 yX * zY -
                         yY * zX;
 
-        /*
-         * Matriz de rotação.
-         */
+
         FloatBuffer matrix =
                 BufferUtils.createFloatBuffer(16);
 
@@ -1243,7 +1156,7 @@ public class KinectRenderer {
         mc.getTextureManager()
                 .bindTexture(skin);
 
-        boolean slim = player.getSkin() == SkinType.ALEX;
+        boolean slim = KinectSkinManager.isSlim(player);
 
         drawHead(joints);
 
