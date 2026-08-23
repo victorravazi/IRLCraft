@@ -1,5 +1,7 @@
 package com.example.examplemod;
 
+import net.minecraft.util.ResourceLocation;
+
 public class KinectPlayer {
 
     private final int id;
@@ -10,6 +12,10 @@ public class KinectPlayer {
 
     private SkinType skin;
 
+    private ResourceLocation resolvedSkinTexture;
+
+    private boolean resolvedSlim;
+
     private float[][] joints;
 
     public KinectPlayer(int id) {
@@ -19,6 +25,28 @@ public class KinectPlayer {
         this.nickname = "Player " + id;
 
         this.skin = SkinType.STEVE;
+    }
+
+    public ResourceLocation getResolvedSkinTexture() {
+        return resolvedSkinTexture;
+    }
+
+    public boolean isResolvedSlim() {
+        return resolvedSlim;
+    }
+
+    public void setResolvedSkin(ResourceLocation texture, boolean slim) {
+        this.resolvedSkinTexture = texture;
+        this.resolvedSlim = slim;
+    }
+
+    /*
+     * Limpa a skin customizada resolvida, voltando
+     * a usar Steve/Alex fixos (SkinType).
+     */
+    public void clearResolvedSkin() {
+        this.resolvedSkinTexture = null;
+        this.resolvedSlim = false;
     }
 
     public int getId() {
