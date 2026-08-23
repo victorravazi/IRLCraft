@@ -154,6 +154,10 @@ public class KinectSkinGui extends GuiScreen {
             manager
                     .getPlayer(selectedPlayer)
                     .setSkin(SkinType.STEVE);
+
+            manager
+                    .getPlayer(selectedPlayer)
+                    .clearResolvedSkin();
         }
 
         /*
@@ -164,6 +168,10 @@ public class KinectSkinGui extends GuiScreen {
             manager
                     .getPlayer(selectedPlayer)
                     .setSkin(SkinType.ALEX);
+
+            manager
+                    .getPlayer(selectedPlayer)
+                    .clearResolvedSkin();
         }
 
         /*
@@ -186,19 +194,15 @@ public class KinectSkinGui extends GuiScreen {
                             nicknamePlayer2.getText()
                     );
 
-            if (!nickname1.trim().isEmpty()) {
+            KinectSkinManager.resolveNickname(          // <- novo
+                    manager.getPlayer1(),                // <- novo
+                    nicknamePlayer1.getText()            // <- novo
+            );                                            // <- novo
 
-                KinectSkinManager.testNickname(
-                        nickname1
-                );
-            }
-
-            if (!nickname2.trim().isEmpty()) {
-
-                KinectSkinManager.testNickname(
-                        nickname2
-                );
-            }
+            KinectSkinManager.resolveNickname(          // <- novo
+                    manager.getPlayer2(),                // <- novo
+                    nicknamePlayer2.getText()            // <- novo
+            );
 
             this.mc.displayGuiScreen(null);
         }
