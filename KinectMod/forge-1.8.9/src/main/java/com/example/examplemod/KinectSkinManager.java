@@ -1,32 +1,23 @@
 package com.example.examplemod;
 
-import com.mojang.authlib.ProfileLookupCallback;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.client.resources.SkinManager;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.Agent;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import com.mojang.authlib.yggdrasil.YggdrasilGameProfileRepository;
-import java.net.Proxy;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.util.ResourceLocation;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public class KinectSkinManager {
-    private static final Map<String, ResourceLocation> skinCache = new HashMap<>();
-
-    public static ResourceLocation getCustomSkin(String nickname) {
-        if(nickname == null){
-            return null;
-        }
-
-        return skinCache.get(
-                nickname.toLowerCase()
-        );
-
-    }
 
     private static final ResourceLocation STEVE =
             new ResourceLocation(
@@ -40,14 +31,16 @@ public class KinectSkinManager {
                     "textures/skins/alex.png"
             );
 
-    public static ResourceLocation getSkin(
-            KinectPlayer player) {
+    private static final String UUID_ENDPOINT =
+            "https://api.mojang.com/users/profiles/minecraft/";
 
-        ResourceLocation custom =
-                getCustomSkin(player.getNickname());
+    private static final String PROFILE_ENDPOINT =
+            "https://sessionserver.mojang.com/session/minecraft/profile/";
 
-        if (custom != null) {
-            return custom;
+    public static ResourceLocation getSkin(KinectPlayer player) {
+
+        if (player.getResolvedSkinTexture() != null) {
+            return player.getResolvedSkinTexture();
         }
 
         if (player.getSkin() == SkinType.ALEX) {
@@ -57,207 +50,215 @@ public class KinectSkinManager {
         return STEVE;
     }
 
-    public static GameProfile getGameProfile(String nickname) {
+    public static boolean isSlim(KinectPlayer player) {
 
-        if (nickname == null || nickname.trim().isEmpty()) {
-            System.out.println("[KinectSkin] Nickname vazio.");
-            return null;
+        if (player.getResolvedSkinTexture() != null) {
+            return player.isResolvedSlim();
         }
 
-        final GameProfile[] result = new GameProfile[1];
-
-        YggdrasilAuthenticationService authenticationService =
-                new YggdrasilAuthenticationService(
-                        Proxy.NO_PROXY,
-                        "KinectMod"
-                );
-
-        YggdrasilGameProfileRepository repository =
-                new YggdrasilGameProfileRepository(
-                        authenticationService
-                );
-
-        repository.findProfilesByNames(
-                new String[]{nickname},
-                Agent.MINECRAFT,
-                new com.mojang.authlib.ProfileLookupCallback() {
-
-                    @Override
-                    public void onProfileLookupSucceeded(GameProfile profile) {
-
-                        result[0] = profile;
-
-                        System.out.println(
-                                "[KinectSkin] Perfil encontrado: "
-                                        + profile.getName()
-                                        + " | "
-                                        + profile.getId()
-                        );
-                    }
-
-                    @Override
-                    public void onProfileLookupFailed(
-                            GameProfile profile,
-                            Exception exception) {
-
-                        System.out.println(
-                                "[KinectSkin] Não foi possível encontrar: "
-                                        + nickname
-                        );
-
-                        exception.printStackTrace();
-                    }
-                }
-        );
-
-        return result[0];
+        return player.getSkin() == SkinType.ALEX;
     }
 
-    public static void testNickname(String nickname) {
+    public static void resolveNickname(final KinectPlayer player, final String nickname) {
 
         if (nickname == null || nickname.trim().isEmpty()) {
-            System.out.println("[KinectSkin] Nickname vazio.");
             return;
         }
 
-        System.out.println(
-                "[KinectSkin] Procurando jogador: " + nickname
-        );
-
-        YggdrasilAuthenticationService authenticationService =
-                new YggdrasilAuthenticationService(
-                        Proxy.NO_PROXY,
-                        "KinectMod"
-                );
-
-        YggdrasilGameProfileRepository repository =
-                new YggdrasilGameProfileRepository(
-                        authenticationService
-                );
-
-        repository.findProfilesByNames(
-                new String[]{nickname},
-                Agent.MINECRAFT,
-                new ProfileLookupCallback() {
-
-                    @Override
-                    public void onProfileLookupSucceeded(
-                            GameProfile profile) {
-
-                        System.out.println(
-                                "[KinectSkin] Perfil encontrado!"
-                        );
-
-                        System.out.println(
-                                "[KinectSkin] Nome: "
-                                        + profile.getName()
-                        );
-
-                        System.out.println(
-                                "[KinectSkin] UUID: "
-                                        + profile.getId()
-                        );
-
-                        YggdrasilAuthenticationService authenticationService =
-                                new YggdrasilAuthenticationService(
-                                        Proxy.NO_PROXY,
-                                        "KinectMod"
-                                );
-
-                        try {
-
-                            authenticationService
-                                    .createMinecraftSessionService()
-                                    .fillProfileProperties(profile, false);
-
-                            System.out.println(
-                                    "[KinectSkin] Propriedades carregadas!"
-                            );
-
-                            Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures =
-                                    authenticationService
-                                            .createMinecraftSessionService()
-                                            .getTextures(profile, false);
-
-                            MinecraftProfileTexture skin =
-                                    textures.get(MinecraftProfileTexture.Type.SKIN);
-
-                            if (skin != null) {
-
-                                System.out.println(
-                                        "[KinectSkin] Skin encontrada!"
-                                );
-
-
-                                System.out.println(
-                                        "[KinectSkin] URL: "
-                                                + skin.getUrl()
-                                );
-
-                                loadSkinTexture(profile,nickname);
-
-                            } else {
-
-                                System.out.println(
-                                        "[KinectSkin] Este jogador não possui uma skin."
-                                );
-                            }
-
-                        } catch (Exception exception) {
-
-                            System.out.println(
-                                    "[KinectSkin] Erro ao carregar propriedades da skin."
-                            );
-
-                            exception.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onProfileLookupFailed(
-                            GameProfile profile,
-                            Exception exception) {
-
-                        System.out.println(
-                                "[KinectSkin] Falha ao encontrar: "
-                                        + nickname
-                        );
-
-                        exception.printStackTrace();
-                    }
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    resolveNicknameBlocking(player, nickname.trim());
+                } catch (Exception e) {
+                    System.err.println(
+                            "[KinectMod] Falha ao resolver skin de '" + nickname + "': " + e
+                    );
                 }
-        );
+            }
+        });
+
+        thread.setName("KinectMod-SkinResolver-" + player.getId());
+        thread.setDaemon(true);
+        thread.start();
     }
 
-    public static void loadSkinTexture(GameProfile profile, String nickname) {
+    private static void resolveNicknameBlocking(final KinectPlayer player, String nickname) throws Exception {
 
-        Minecraft minecraft = Minecraft.getMinecraft();
+        String uuid = fetchUuid(nickname);
 
-        SkinManager skinManager =
-                minecraft.getSkinManager();
+        if (uuid == null) {
+            System.err.println("[KinectMod] Nickname não encontrado: " + nickname);
+            return;
+        }
 
-        skinManager.loadProfileTextures(
-                profile,
-                new SkinManager.SkinAvailableCallback() {
+        /*
+         * UUID -> propriedades do perfil (textures em base64)
+         */
+        JsonObject profileJson = fetchProfile(uuid);
 
-                    @Override
-                    public void skinAvailable(
-                            MinecraftProfileTexture.Type type,
-                            ResourceLocation location,
-                            MinecraftProfileTexture texture) {
+        if (profileJson == null) {
+            return;
+        }
 
-                        if (type == MinecraftProfileTexture.Type.SKIN) {
+        String texturesValue = null;
 
-                            skinCache.put(
-                                    nickname.toLowerCase(),
-                                    location
-                            );
+        JsonArray properties = profileJson.getAsJsonArray("properties");
 
-                            System.out.println("Skin salva para: " + nickname);
-                        }
-                    }
-                },
-                false
+        if (properties != null) {
+
+            for (JsonElement element : properties) {
+
+                JsonObject property = element.getAsJsonObject();
+
+                if ("textures".equals(property.get("name").getAsString())) {
+                    texturesValue = property.get("value").getAsString();
+                    break;
+                }
+            }
+        }
+
+        if (texturesValue == null) {
+            System.err.println("[KinectMod] Perfil sem textures: " + nickname);
+            return;
+        }
+
+        /*
+         *  Decodifica o base64 -> JSON com a URL da skin
+         *  o metadado "model" for slim ou ausente = classic
+         */
+        String decoded = new String(
+                Base64.getDecoder().decode(texturesValue),
+                StandardCharsets.UTF_8
         );
+
+        JsonObject texturesJson = new JsonParser()
+                .parse(decoded)
+                .getAsJsonObject()
+                .getAsJsonObject("textures");
+
+        if (texturesJson == null || !texturesJson.has("SKIN")) {
+            System.err.println("[KinectMod] Sem skin definida pra: " + nickname);
+            return;
+        }
+
+        JsonObject skinJson = texturesJson.getAsJsonObject("SKIN");
+
+        String skinUrl = skinJson.get("url").getAsString();
+
+        boolean slim = false;
+
+        if (skinJson.has("metadata")) {
+
+            JsonObject metadata = skinJson.getAsJsonObject("metadata");
+
+            if (metadata.has("model")) {
+                slim = "slim".equals(metadata.get("model").getAsString());
+            }
+        }
+
+        final BufferedImage image = downloadImage(skinUrl);
+
+        if (image == null) {
+            return;
+        }
+
+        final boolean finalSlim = slim;
+
+        Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+            @Override
+            public void run() {
+
+                ResourceLocation location = new ResourceLocation(
+                        "kinectmod",
+                        "dynamic_skin/player_" + player.getId()
+                );
+
+                Minecraft.getMinecraft()
+                        .getTextureManager()
+                        .loadTexture(location, new DynamicTexture(image));
+
+                player.setResolvedSkin(location, finalSlim);
+            }
+        });
+    }
+
+    private static String fetchUuid(String nickname) throws Exception {
+
+        HttpURLConnection connection = (HttpURLConnection)
+                new URL(UUID_ENDPOINT + nickname).openConnection();
+
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
+
+        if (connection.getResponseCode() != 200) {
+            return null;
+        }
+
+        JsonObject json = readJson(connection.getInputStream());
+
+        connection.disconnect();
+
+        if (json == null || !json.has("id")) {
+            return null;
+        }
+
+        return json.get("id").getAsString();
+    }
+
+    private static JsonObject fetchProfile(String uuid) throws Exception {
+
+        HttpURLConnection connection = (HttpURLConnection)
+                new URL(PROFILE_ENDPOINT + uuid + "?unsigned=false").openConnection();
+
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
+
+        if (connection.getResponseCode() != 200) {
+            return null;
+        }
+
+        JsonObject json = readJson(connection.getInputStream());
+
+        connection.disconnect();
+
+        return json;
+    }
+
+    private static JsonObject readJson(InputStream inputStream) {
+
+        try {
+
+            return new JsonParser()
+                    .parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                    .getAsJsonObject();
+
+        } finally {
+
+            try {
+                inputStream.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static BufferedImage downloadImage(String url) throws Exception {
+
+        HttpURLConnection connection = (HttpURLConnection)
+                new URL(url).openConnection();
+
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
+
+        InputStream inputStream = connection.getInputStream();
+
+        try {
+            return ImageIO.read(inputStream);
+        } finally {
+            inputStream.close();
+            connection.disconnect();
+        }
     }
 }
