@@ -69,11 +69,9 @@ public class KinectReceiver extends Thread {
 
             for (int p = 0; p < playerCount; p++) {
 
-
                 long trackingId = readLongLE(stream);
 
                 int jointCount = readIntLE(stream);
-
 
                 if (jointCount != 20) {
                     System.out.println("[Kinect] Joint count inválido: "+ jointCount );
@@ -86,9 +84,7 @@ public class KinectReceiver extends Thread {
 
                     joints[i][0] = readFloatLE(stream);
 
-
                     joints[i][1] = readFloatLE(stream);
-
 
                     joints[i][2] = readFloatLE(stream);
 
