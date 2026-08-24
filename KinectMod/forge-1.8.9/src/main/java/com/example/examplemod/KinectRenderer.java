@@ -48,8 +48,7 @@ public class KinectRenderer {
         /*
          * Player 1
          */
-        KinectPlayer player1 =
-                ModKinect.playerManager.getPlayer1();
+        KinectPlayer player1 = ModKinect.playerManager.getPlayer1();
 
         if (player1.getJoints() != null) {
 
@@ -59,12 +58,24 @@ public class KinectRenderer {
         /*
          * Player 2
          */
-        KinectPlayer player2 =
-                ModKinect.playerManager.getPlayer2();
+        KinectPlayer player2 = ModKinect.playerManager.getPlayer2();
 
         if (player2.getJoints() != null) {
 
             drawMinecraftPlayer(player2);
+        }
+
+        drawPlayerReference(partialTicks);
+        drawShoulderReference(player1,partialTicks);
+        if (player1.getJoints() != null) {
+
+            drawHandReference(
+                    player1.getJoints()[6]
+            );
+
+            drawHandReference(
+                    player1.getJoints()[10]
+            );
         }
 
         GlStateManager.disableBlend();
@@ -72,6 +83,164 @@ public class KinectRenderer {
         GlStateManager.enableLighting();
 
         GlStateManager.popMatrix();
+    }
+
+    private void drawHandReference(float[] hand) {
+
+        if (hand == null)
+            return;
+
+        GL11.glPushMatrix();
+
+        GL11.glTranslatef(
+                hand[0],
+                hand[1] + 1.3F,
+                hand[2]
+        );
+
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_LIGHTING);
+
+        GL11.glColor4f(
+                0.0F,
+                0.0F,
+                1.0F,
+                1.0F
+        );
+
+        GL11.glPointSize(25.0F);
+
+        GL11.glBegin(GL11.GL_POINTS);
+
+        GL11.glVertex3f(
+                0.0F,
+                0.0F,
+                0.0F
+        );
+
+        GL11.glEnd();
+
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+        GL11.glPopMatrix();
+    }
+
+    private void drawShoulderReference(
+            KinectPlayer player,
+            float partialTicks) {
+
+        if (player == null)
+            return;
+
+        float[][] joints = player.getJoints();
+
+        if (joints == null)
+            return;
+
+        float[] leftShoulder = joints[4];
+        float[] rightShoulder = joints[8];
+
+        float centerX =
+                (leftShoulder[0] + rightShoulder[0]) / 2.0F;
+
+        float centerY =
+                (leftShoulder[1] + rightShoulder[1]) / 2.0F;
+
+        float centerZ =
+                (leftShoulder[2] + rightShoulder[2]) / 2.0F;
+
+        GL11.glPushMatrix();
+
+        GL11.glTranslatef(
+                centerX,
+                centerY + 1.3F,
+                centerZ
+        );
+
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_LIGHTING);
+
+        GL11.glColor4f(
+                0.0F,
+                1.0F,
+                0.0F,
+                1.0F
+        );
+
+        GL11.glPointSize(10.0F);
+
+        GL11.glBegin(GL11.GL_POINTS);
+
+        GL11.glVertex3f(
+                0.0F,
+                0.0F,
+                0.0F
+        );
+
+        GL11.glEnd();
+
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+        GL11.glPopMatrix();
+    }
+
+    private void drawPlayerReference(float partialTicks) {
+
+        if (mc.thePlayer == null)
+            return;
+
+        double x = mc.thePlayer.lastTickPosX +
+                (mc.thePlayer.posX - mc.thePlayer.lastTickPosX)
+                        * partialTicks;
+
+        double y = mc.thePlayer.lastTickPosY +
+                (mc.thePlayer.posY - mc.thePlayer.lastTickPosY)
+                        * partialTicks;
+
+        double z = mc.thePlayer.lastTickPosZ +
+                (mc.thePlayer.posZ - mc.thePlayer.lastTickPosZ)
+                        * partialTicks;
+
+        GL11.glPushMatrix();
+
+        GL11.glTranslated(
+                x - mc.getRenderManager().viewerPosX,
+                y - mc.getRenderManager().viewerPosY,
+                z - mc.getRenderManager().viewerPosZ
+        );
+
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_LIGHTING);
+
+        GL11.glColor4f(
+                1.0F,
+                0.0F,
+                0.0F,
+                1.0F
+        );
+
+        GL11.glBegin(GL11.GL_LINES);
+
+        // X
+        GL11.glVertex3f(-0.3F, 0.0F, 0.0F);
+        GL11.glVertex3f( 0.3F, 0.0F, 0.0F);
+
+        // Y
+        GL11.glVertex3f(0.0F, -0.3F, 0.0F);
+        GL11.glVertex3f(0.0F,  0.3F, 0.0F);
+
+        // Z
+        GL11.glVertex3f(0.0F, 0.0F, -0.3F);
+        GL11.glVertex3f(0.0F, 0.0F,  0.3F);
+
+        GL11.glEnd();
+
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+        GL11.glPopMatrix();
     }
 
     private void drawCube(
@@ -691,14 +860,11 @@ public class KinectRenderer {
         /*
          * Centro dos ombros.
          */
-        float centerX =
-                (leftShoulder[0] + rightShoulder[0]) / 2.0F;
+        float centerX = (leftShoulder[0] + rightShoulder[0]) / 2.0F;
 
-        float centerY =
-                (leftShoulder[1] + rightShoulder[1]) / 2.0F;
+        float centerY = (leftShoulder[1] + rightShoulder[1]) / 2.0F;
 
-        float centerZ =
-                (leftShoulder[2] + rightShoulder[2]) / 2.0F;
+        float centerZ = (leftShoulder[2] + rightShoulder[2]) / 2.0F;
 
         GL11.glPushMatrix();
 
@@ -1032,9 +1198,7 @@ public class KinectRenderer {
 
     private void drawLeftLeg(float[][] joints) {
 
-        float[] pivot =
-                getLeftLegPivot(joints);
-
+        float[] pivot = getLeftLegPivot(joints);
         drawLeg(
                 pivot,
                 joints[14],
@@ -1047,9 +1211,7 @@ public class KinectRenderer {
 
     private void drawRightLeg(float[][] joints) {
 
-        float[] pivot =
-                getRightLegPivot(joints);
-
+        float[] pivot = getRightLegPivot(joints);
         drawLeg(
                 pivot,
                 joints[18],
@@ -1141,20 +1303,16 @@ public class KinectRenderer {
         };
     }
 
-    private void drawMinecraftPlayer(
-            KinectPlayer player) {
+    private void drawMinecraftPlayer(KinectPlayer player) {
 
-        float[][] joints =
-                player.getJoints();
+        float[][] joints = player.getJoints();
 
         if (joints == null)
             return;
 
-        ResourceLocation skin =
-                KinectSkinManager.getSkin(player);
+        ResourceLocation skin = KinectSkinManager.getSkin(player);
 
-        mc.getTextureManager()
-                .bindTexture(skin);
+        mc.getTextureManager().bindTexture(skin);
 
         boolean slim = KinectSkinManager.isSlim(player);
 
