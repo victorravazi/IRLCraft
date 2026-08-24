@@ -22,6 +22,7 @@ public class ModKinect {
     public static KinectReceiver receiver;
     public static KinectRenderer renderer;
     public static KinectPlayerManager playerManager;
+    public static KinectInteractionManager interactionManager;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
@@ -35,15 +36,7 @@ public class ModKinect {
 
             ClientRegistry.registerKeyBinding(openSkinGui);
             playerManager = new KinectPlayerManager();
-            System.out.println(
-                    "Player 1: " +
-                            playerManager.getPlayer1().getNickname()
-            );
-
-            System.out.println(
-                    "Player 2: " +
-                            playerManager.getPlayer2().getNickname()
-            );
+            interactionManager = new KinectInteractionManager();
             receiver = new KinectReceiver(25566);
             receiver.start();
             renderer = new KinectRenderer();
@@ -63,8 +56,6 @@ public class ModKinect {
         if (renderer == null)
             return;
 
-
-
         renderer.render(event.partialTicks);
     }
 
@@ -74,6 +65,10 @@ public class ModKinect {
 
         if (event.phase != TickEvent.Phase.END)
             return;
+
+        if (interactionManager != null) {
+            interactionManager.update();
+        }
 
         if (openSkinGui.isPressed()) {
 
