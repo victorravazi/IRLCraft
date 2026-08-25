@@ -3,7 +3,7 @@
 
 # IRLCraft (Em desenvolvimento)
 
-**Traga seu corpo real para dentro do Minecraft. :O ** 
+**Traga seu corpo real para dentro do Minecraft.** 
 
 Captura de movimento via Kinect, transmitida em tempo real e renderizada como um avatar 3D dentro do jogo.
 
