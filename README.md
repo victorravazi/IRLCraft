@@ -56,13 +56,13 @@ O projeto é dividido em duas partes que se comunicam via rede:
 
 ```
       UDP         
-   KinectCapture         ───────────────▶       KinectMod        
-   (C# / .NET)             porta 25566        (Java / Forge 1.8.9) 
+   KinectCapture               ───────────────▶                   KinectMod        
+   (C# / .NET)                   porta 25566                 (Java / Forge 1.8.9) 
                                                                 
-  Lê o sensor Kinect,                       Recebe as posições e  
-  extrai as 20 juntas                       desenha o avatar no   
-  do esqueleto e                            mundo do jogo em      
-  transmite via rede                        tempo real            
+  Lê o sensor Kinect,                                      Recebe as posições e  
+  extrai as 20 juntas                                      desenha o avatar no   
+  do esqueleto e                                           mundo do jogo em tempo real      
+  transmite via rede                                                
 
 ```
 
