@@ -23,7 +23,7 @@ O **IRLCraft** conecta um sensor **Kinect 360** ao **Minecraft** (Forge 1.8.9). 
 É basicamente um **motion capture caseiro para Minecraft**: se você levanta o braço na vida real, o boneco levanta o braço no jogo.
 
 <div align="center">
-<img src="Demo2.png" width="420"/>
+<img src="/assets/Demo2.png" width="420"/>
 <img src="Demo5.png" width="420"/>
 </div>
 
