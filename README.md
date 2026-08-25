@@ -23,8 +23,8 @@ O **IRLCraft** conecta um sensor **Kinect 360** ao **Minecraft** (Forge 1.8.9). 
 É basicamente um **motion capture caseiro para Minecraft**: se você levanta o braço na vida real, o boneco levanta o braço no jogo.
 
 <div align="center">
-<img src="demo-2.png" width="420"/>
-<img src="demo-5.png" width="420"/>
+<img src="Demo2.png" width="420"/>
+<img src="Demo5.png" width="420"/>
 </div>
 
 ---
@@ -32,38 +32,38 @@ O **IRLCraft** conecta um sensor **Kinect 360** ao **Minecraft** (Forge 1.8.9). 
 ## Demonstração
 
 <div align="center">
-<img src="demo-4.png" width="600"/>
+<img src="Demo4.png" width="600"/>
 
 *O avatar reagindo em tempo real aos movimentos capturados pelo Kinect*
 </div>
 
 <table>
 <tr>
-<td><img src="demo-1-corridor.png"/></td>
-<td><img src="demo-3.png"/></td>
+<td><img src="Demo1.png"/></td>
+<td><img src="Demo3.png"/></td>
 </tr>
 <tr>
-<td><img src="demo-6.png"/></td>
-<td><img src="demo-7.png"/></td>
+<td><img src="Demo6.png"/></td>
+<td><img src="Demo7.png"/></td>
 </tr>
 </table>
 
 ---
 
-## ⚙️ Como funciona
+## Como funciona
 
 O projeto é dividido em duas partes que se comunicam via rede:
 
 ```
-┌─────────────────────┐        UDP        ┌──────────────────────┐
-│   KinectCapture      │  ───────────────▶ │      KinectMod        │
-│   (C# / .NET)         │    porta 25566     │   (Java / Forge 1.8.9) │
-│                       │                    │                        │
-│  Lê o sensor Kinect,  │                    │  Recebe as posições e  │
-│  extrai as 20 juntas  │                    │  desenha o avatar no   │
-│  do esqueleto e       │                    │  mundo do jogo em      │
-│  transmite via rede   │                    │  tempo real            │
-└─────────────────────┘                    └──────────────────────┘
+      UDP         
+   KinectCapture         ───────────────▶       KinectMod        
+   (C# / .NET)             porta 25566        (Java / Forge 1.8.9) 
+                                                                
+  Lê o sensor Kinect,                       Recebe as posições e  
+  extrai as 20 juntas                       desenha o avatar no   
+  do esqueleto e                            mundo do jogo em      
+  transmite via rede                        tempo real            
+
 ```
 
 1. **`KinectCapture`** (C#) lê os dados do sensor Kinect, identifica a pessoa sendo rastreada e extrai a posição das 20 articulações do corpo a cada frame.
