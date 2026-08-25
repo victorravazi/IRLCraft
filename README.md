@@ -24,7 +24,7 @@ O **IRLCraft** conecta um sensor **Kinect 360** ao **Minecraft** (Forge 1.8.9). 
 
 <div align="center">
 <img src="/assets/Demo2.png" width="420"/>
-<img src="Demo5.png" width="420"/>
+<img src="/assets/Demo5.png" width="420"/>
 </div>
 
 ---
@@ -32,19 +32,19 @@ O **IRLCraft** conecta um sensor **Kinect 360** ao **Minecraft** (Forge 1.8.9). 
 ## Demonstração
 
 <div align="center">
-<img src="Demo4.png" width="600"/>
+<img src="/assets/Demo4.png" width="600"/>
 
 *O avatar reagindo em tempo real aos movimentos capturados pelo Kinect*
 </div>
 
 <table>
 <tr>
-<td><img src="Demo1.png"/></td>
-<td><img src="Demo3.png"/></td>
+<td><img src="/assets/Demo1.png"/></td>
+<td><img src="/assets/Demo3.png"/></td>
 </tr>
 <tr>
-<td><img src="Demo6.png"/></td>
-<td><img src="Demo7.png"/></td>
+<td><img src="/assets/Demo6.png"/></td>
+<td><img src="/assets/Demo7.png"/></td>
 </tr>
 </table>
 
