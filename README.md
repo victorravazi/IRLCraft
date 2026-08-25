@@ -1,8 +1,7 @@
-# IRLCraft (Em desenvolvimento)
 
 <div align="center">
 
-# IRLCraft
+# IRLCraft (Em desenvolvimento)
 
 **Traga seu corpo real para dentro do Minecraft.**
 
