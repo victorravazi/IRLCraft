@@ -84,7 +84,6 @@ O projeto é dividido em duas partes que se comunicam via rede:
 ## Tecnologias
 
 - **C# / .NET** — leitura do sensor via Kinect SDK
-- **OpenTK** — visualização 3D do esqueleto no lado da captura
 - **Java** — mod para Minecraft
 - **Minecraft Forge 1.8.9** — hooks de renderização in-game
 - **UDP** — comunicação em tempo real entre os dois lados
