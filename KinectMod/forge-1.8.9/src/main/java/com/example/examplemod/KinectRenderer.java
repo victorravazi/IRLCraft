@@ -65,182 +65,12 @@ public class KinectRenderer {
             drawMinecraftPlayer(player2);
         }
 
-        drawPlayerReference(partialTicks);
-        drawShoulderReference(player1,partialTicks);
-        if (player1.getJoints() != null) {
-
-            drawHandReference(
-                    player1.getJoints()[6]
-            );
-
-            drawHandReference(
-                    player1.getJoints()[10]
-            );
-        }
-
         GlStateManager.disableBlend();
 
         GlStateManager.enableLighting();
 
         GlStateManager.popMatrix();
-    }
-
-    private void drawHandReference(float[] hand) {
-
-        if (hand == null)
-            return;
-
-        GL11.glPushMatrix();
-
-        GL11.glTranslatef(
-                hand[0],
-                hand[1] + 1.3F,
-                hand[2]
-        );
-
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_LIGHTING);
-
-        GL11.glColor4f(
-                0.0F,
-                0.0F,
-                1.0F,
-                1.0F
-        );
-
-        GL11.glPointSize(25.0F);
-
-        GL11.glBegin(GL11.GL_POINTS);
-
-        GL11.glVertex3f(
-                0.0F,
-                0.0F,
-                0.0F
-        );
-
-        GL11.glEnd();
-
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-
-        GL11.glPopMatrix();
-    }
-
-    private void drawShoulderReference(
-            KinectPlayer player,
-            float partialTicks) {
-
-        if (player == null)
-            return;
-
-        float[][] joints = player.getJoints();
-
-        if (joints == null)
-            return;
-
-        float[] leftShoulder = joints[4];
-        float[] rightShoulder = joints[8];
-
-        float centerX =
-                (leftShoulder[0] + rightShoulder[0]) / 2.0F;
-
-        float centerY =
-                (leftShoulder[1] + rightShoulder[1]) / 2.0F;
-
-        float centerZ =
-                (leftShoulder[2] + rightShoulder[2]) / 2.0F;
-
-        GL11.glPushMatrix();
-
-        GL11.glTranslatef(
-                centerX,
-                centerY + 1.3F,
-                centerZ
-        );
-
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_LIGHTING);
-
-        GL11.glColor4f(
-                0.0F,
-                1.0F,
-                0.0F,
-                1.0F
-        );
-
-        GL11.glPointSize(10.0F);
-
-        GL11.glBegin(GL11.GL_POINTS);
-
-        GL11.glVertex3f(
-                0.0F,
-                0.0F,
-                0.0F
-        );
-
-        GL11.glEnd();
-
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-
-        GL11.glPopMatrix();
-    }
-
-    private void drawPlayerReference(float partialTicks) {
-
-        if (mc.thePlayer == null)
-            return;
-
-        double x = mc.thePlayer.lastTickPosX +
-                (mc.thePlayer.posX - mc.thePlayer.lastTickPosX)
-                        * partialTicks;
-
-        double y = mc.thePlayer.lastTickPosY +
-                (mc.thePlayer.posY - mc.thePlayer.lastTickPosY)
-                        * partialTicks;
-
-        double z = mc.thePlayer.lastTickPosZ +
-                (mc.thePlayer.posZ - mc.thePlayer.lastTickPosZ)
-                        * partialTicks;
-
-        GL11.glPushMatrix();
-
-        GL11.glTranslated(
-                x - mc.getRenderManager().viewerPosX,
-                y - mc.getRenderManager().viewerPosY,
-                z - mc.getRenderManager().viewerPosZ
-        );
-
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_LIGHTING);
-
-        GL11.glColor4f(
-                1.0F,
-                0.0F,
-                0.0F,
-                1.0F
-        );
-
-        GL11.glBegin(GL11.GL_LINES);
-
-        // X
-        GL11.glVertex3f(-0.3F, 0.0F, 0.0F);
-        GL11.glVertex3f( 0.3F, 0.0F, 0.0F);
-
-        // Y
-        GL11.glVertex3f(0.0F, -0.3F, 0.0F);
-        GL11.glVertex3f(0.0F,  0.3F, 0.0F);
-
-        // Z
-        GL11.glVertex3f(0.0F, 0.0F, -0.3F);
-        GL11.glVertex3f(0.0F, 0.0F,  0.3F);
-
-        GL11.glEnd();
-
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-
-        GL11.glPopMatrix();
+        ModKinect.interactionManager.renderTestPoint();
     }
 
     private void drawCube(
@@ -1183,7 +1013,7 @@ public class KinectRenderer {
 
         float armWidth = slim ? 0.135F : 0.18F;
 
-        drawBodyPart(pivot,joints[6],0.18F,0.18F, 0.55F,1,slim);
+        drawBodyPart(pivot,joints[7],0.18F,0.18F, 0.55F,1,slim);
 
     }
 
@@ -1192,7 +1022,7 @@ public class KinectRenderer {
 
         float armWidth = slim ? 0.135F : 0.18F;
 
-        drawBodyPart(pivot,joints[10],0.18F,0.18F, 0.55F,2,slim);
+        drawBodyPart(pivot,joints[11],0.18F,0.18F, 0.55F,2,slim);
 
     }
 
