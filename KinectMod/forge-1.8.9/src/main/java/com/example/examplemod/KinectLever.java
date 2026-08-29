@@ -1,6 +1,9 @@
 package com.example.examplemod;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 
 public class KinectLever implements KinectInteractable {
 
@@ -10,6 +13,9 @@ public class KinectLever implements KinectInteractable {
 
     private final float interactionRadius;
     private final BlockPos blockPos;
+
+    private static final long INTERACT_COOLDOWN_MS = 700L;
+    private long lastInteractTime = 0L;
 
     public KinectLever(
             float x,
@@ -32,30 +38,15 @@ public class KinectLever implements KinectInteractable {
             float handY,
             float handZ) {
 
-        float leverX =
-                blockPos.getX() + 0.5F;
+        float leverX = blockPos.getX() + 0.5F;
+        float leverY = blockPos.getY() + 0.5F;
+        float leverZ = blockPos.getZ() + 0.5F;
 
-        float leverY =
-                blockPos.getY() + 0.5F;
+        float dx = handX - leverX;
+        float dy = handY - leverY;
+        float dz = handZ - leverZ;
 
-        float leverZ =
-                blockPos.getZ() + 0.5F;
-
-        float dx =
-                handX - leverX;
-
-        float dy =
-                handY - leverY;
-
-        float dz =
-                handZ - leverZ;
-
-        float distance =
-                (float) Math.sqrt(
-                        dx * dx +
-                                dy * dy +
-                                dz * dz
-                );
+        float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         return distance < interactionRadius;
     }
@@ -63,14 +54,33 @@ public class KinectLever implements KinectInteractable {
     @Override
     public void interact() {
 
-        System.out.println(
-                "[KinectInteraction] " +
-                        "ALAVANCA INTERAGIDA!"
+        long now = System.currentTimeMillis();
+
+        if (now - lastInteractTime < INTERACT_COOLDOWN_MS)
+            return;
+
+        lastInteractTime = now;
+
+        Minecraft mc = Minecraft.getMinecraft();
+
+        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null)
+            return;
+
+        mc.playerController.onPlayerRightClick(
+                mc.thePlayer,
+                mc.theWorld,
+                mc.thePlayer.inventory.getCurrentItem(),
+                blockPos,
+                EnumFacing.UP,
+                new Vec3(
+                        blockPos.getX() + 0.5D,
+                        blockPos.getY() + 0.5D,
+                        blockPos.getZ() + 0.5D
+                )
         );
 
         System.out.println(
-                "[KinectInteraction] " +
-                        "BlockPos: " + blockPos
+                "[KinectInteraction] Alavanca ativada de verdade: " + blockPos
         );
     }
 }
