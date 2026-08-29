@@ -42,6 +42,7 @@ public class ModKinect {
             renderer = new KinectRenderer();
 
             MinecraftForge.EVENT_BUS.register(this);
+            MinecraftForge.EVENT_BUS.register(interactionManager);
 
             System.out.println("[KINECT] Receiver iniciado!");
 
