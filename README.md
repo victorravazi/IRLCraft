@@ -3,7 +3,7 @@
 
 # IRLCraft (Em desenvolvimento)
 
-**Traga seu corpo real para dentro do Minecraft.**
+**Traga seu corpo real para dentro do Minecraft.** 
 
 Captura de movimento via Kinect, transmitida em tempo real e renderizada como um avatar 3D dentro do jogo.
 
@@ -23,8 +23,8 @@ O **IRLCraft** conecta um sensor **Kinect 360** ao **Minecraft** (Forge 1.8.9). 
 É basicamente um **motion capture caseiro para Minecraft**: se você levanta o braço na vida real, o boneco levanta o braço no jogo.
 
 <div align="center">
-<img src="demo-2.png" width="420"/>
-<img src="demo-5.png" width="420"/>
+<img src="/assets/Demo2.png" width="420"/>
+<img src="/assets/Demo5.png" width="420"/>
 </div>
 
 ---
@@ -32,38 +32,38 @@ O **IRLCraft** conecta um sensor **Kinect 360** ao **Minecraft** (Forge 1.8.9). 
 ## Demonstração
 
 <div align="center">
-<img src="demo-4.png" width="600"/>
+<img src="/assets/Demo3.png" width="600"/>
 
 *O avatar reagindo em tempo real aos movimentos capturados pelo Kinect*
 </div>
 
 <table>
 <tr>
-<td><img src="demo-1-corridor.png"/></td>
-<td><img src="demo-3.png"/></td>
+<td><img src="/assets/Demo1.png"/></td>
+<td><img src="/assets/Demo4.png"/></td>
 </tr>
 <tr>
-<td><img src="demo-6.png"/></td>
-<td><img src="demo-7.png"/></td>
+<td><img src="/assets/Demo6.png"/></td>
+<td><img src="/assets/Demo7.png"/></td>
 </tr>
 </table>
 
 ---
 
-## ⚙️ Como funciona
+## Como funciona
 
 O projeto é dividido em duas partes que se comunicam via rede:
 
 ```
-┌─────────────────────┐        UDP        ┌──────────────────────┐
-│   KinectCapture      │  ───────────────▶ │      KinectMod        │
-│   (C# / .NET)         │    porta 25566     │   (Java / Forge 1.8.9) │
-│                       │                    │                        │
-│  Lê o sensor Kinect,  │                    │  Recebe as posições e  │
-│  extrai as 20 juntas  │                    │  desenha o avatar no   │
-│  do esqueleto e       │                    │  mundo do jogo em      │
-│  transmite via rede   │                    │  tempo real            │
-└─────────────────────┘                    └──────────────────────┘
+      UDP         
+   KinectCapture               ───────────────▶                   KinectMod        
+   (C# / .NET)                   porta 25566                 (Java / Forge 1.8.9) 
+                                                                
+  Lê o sensor Kinect,                                      Recebe as posições e  
+  extrai as 20 juntas                                      desenha o avatar no   
+  do esqueleto e                                           mundo do jogo em tempo real      
+  transmite via rede                                                
+
 ```
 
 1. **`KinectCapture`** (C#) lê os dados do sensor Kinect, identifica a pessoa sendo rastreada e extrai a posição das 20 articulações do corpo a cada frame.
@@ -84,7 +84,6 @@ O projeto é dividido em duas partes que se comunicam via rede:
 ## Tecnologias
 
 - **C# / .NET** — leitura do sensor via Kinect SDK
-- **OpenTK** — visualização 3D do esqueleto no lado da captura
 - **Java** — mod para Minecraft
 - **Minecraft Forge 1.8.9** — hooks de renderização in-game
 - **UDP** — comunicação em tempo real entre os dois lados
