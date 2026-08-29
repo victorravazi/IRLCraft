@@ -15,14 +15,15 @@ public class KinectLever implements KinectInteractable {
             float x,
             float y,
             float z,
-            BlockPos blockPos) {
+            BlockPos blockPos,
+            float interactionRadius) {
 
         this.x = x;
         this.y = y;
         this.z = z;
 
         this.blockPos = blockPos;
-        this.interactionRadius = 0.30F;
+        this.interactionRadius = interactionRadius;
     }
 
     @Override
@@ -31,15 +32,30 @@ public class KinectLever implements KinectInteractable {
             float handY,
             float handZ) {
 
-        float dx = handX - x;
-        float dy = handY - y;
-        float dz = handZ - z;
+        float leverX =
+                blockPos.getX() + 0.5F;
 
-        float distance = (float) Math.sqrt(
-                dx * dx +
-                        dy * dy +
-                        dz * dz
-        );
+        float leverY =
+                blockPos.getY() + 0.5F;
+
+        float leverZ =
+                blockPos.getZ() + 0.5F;
+
+        float dx =
+                handX - leverX;
+
+        float dy =
+                handY - leverY;
+
+        float dz =
+                handZ - leverZ;
+
+        float distance =
+                (float) Math.sqrt(
+                        dx * dx +
+                                dy * dy +
+                                dz * dz
+                );
 
         return distance < interactionRadius;
     }
