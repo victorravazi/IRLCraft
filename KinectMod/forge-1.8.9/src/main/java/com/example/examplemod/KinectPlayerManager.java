@@ -6,6 +6,8 @@ public class KinectPlayerManager {
 
     private final KinectPlayer player1;
     private final KinectPlayer player2;
+    private final KinectCollisionFilter collisionFilter1 = new KinectCollisionFilter();
+    private final KinectCollisionFilter collisionFilter2 = new KinectCollisionFilter();
 
     public KinectPlayerManager() {
 
@@ -42,41 +44,36 @@ public class KinectPlayerManager {
             return;
         }
 
-        /*
-         * Primeiro jogador
-         */
+        // Primeiro jogador
         if (skeletons.size() >= 1) {
 
-            PlayerSkeleton skeleton =
-                    skeletons.get(0);
+            PlayerSkeleton skeleton = skeletons.get(0);
 
-            player1.setTrackingId(
-                    skeleton.getTrackingId()
+            player1.setTrackingId(skeleton.getTrackingId());
+
+            float[][] filteredJoints = collisionFilter1.filter(
+                    skeleton.getJoints(),
+                    net.minecraft.client.Minecraft.getMinecraft().thePlayer
             );
 
-            player1.setJoints(
-                    skeleton.getJoints()
-            );
+            player1.setJoints(filteredJoints);
         }
 
-        /*
-         * Segundo jogador
-         */
+        // Segundo jogador
         if (skeletons.size() >= 2) {
 
-            PlayerSkeleton skeleton =
-                    skeletons.get(1);
+            PlayerSkeleton skeleton = skeletons.get(1);
 
-            player2.setTrackingId(
-                    skeleton.getTrackingId()
+            player2.setTrackingId(skeleton.getTrackingId());
+
+            float[][] filteredJoints = collisionFilter2.filter(
+                    skeleton.getJoints(),
+                    net.minecraft.client.Minecraft.getMinecraft().thePlayer
             );
 
-            player2.setJoints(
-                    skeleton.getJoints()
-            );
+            player2.setJoints(filteredJoints);
 
         } else {
-
             player2.setJoints(null);
         }
     }
