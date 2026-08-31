@@ -24,3 +24,16 @@ C:\Users\Jocadu\Desktop\KinectToCraft\KinectCapture\ProjetoKinectCapture\Projeto
 C:\Users\Jocadu\Desktop\KinectToCraft\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\OpenTK.pdb
 C:\Users\Jocadu\Desktop\KinectToCraft\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\OpenTK.xml
 C:\Users\Jocadu\Desktop\KinectToCraft\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\obj\Debug\ProjetoK.9D73555A.Up2Date
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\ProjetoKinectCapture.exe.config
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\ProjetoKinectCapture.exe
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\ProjetoKinectCapture.pdb
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\Microsoft.Kinect.dll
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\OpenTK.dll
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\Microsoft.Kinect.xml
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\OpenTK.pdb
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\bin\Debug\OpenTK.xml
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\obj\Debug\ProjetoKinectCapture.csproj.AssemblyReference.cache
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\obj\Debug\ProjetoKinectCapture.csproj.CoreCompileInputs.cache
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\obj\Debug\ProjetoK.9D73555A.Up2Date
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\obj\Debug\ProjetoKinectCapture.exe
+C:\Users\Jocadu\Desktop\KinectRepo\KinectCapture\ProjetoKinectCapture\ProjetoKinectCapture\obj\Debug\ProjetoKinectCapture.pdb
