@@ -16,6 +16,12 @@ public class KinectInteractionManager {
     private final List<KinectInteractable> interactables =
             new ArrayList<>();
 
+    private final java.util.Map<KinectInteractable, Boolean> wasNear =
+            new java.util.HashMap<>();
+
+    private final java.util.Map<String, Boolean> wasNearMap =
+            new java.util.HashMap<>();
+
     // posicao das maos teste
     private double testHandX, testHandY, testHandZ;
     private double testLeftHandX, testLeftHandY, testLeftHandZ;
@@ -362,27 +368,51 @@ public class KinectInteractionManager {
 
         for (KinectInteractable interactable : interactables) {
 
-            if (interactable.isNear((float) rightPos[0], (float) rightPos[1], (float) rightPos[2])) {
-                if (movementY < -0.05F) interactable.interact();
+            boolean rightNear = interactable.isNear(
+                    (float) rightPos[0],
+                    (float) rightPos[1],
+                    (float) rightPos[2]
+            );
+
+            boolean leftNear = interactable.isNear(
+                    (float) leftPos[0],
+                    (float) leftPos[1],
+                    (float) leftPos[2]
+            );
+
+            String rightKey = playerNumber + "_right_" + interactable.hashCode();
+            String leftKey = playerNumber + "_left_" + interactable.hashCode();
+
+            boolean wasRightNear =
+                    wasNearMap.getOrDefault(rightKey, false);
+
+            boolean wasLeftNear =
+                    wasNearMap.getOrDefault(leftKey, false);
+
+            if (interactable instanceof KinectLever) {
+
+                if (rightNear && movementY < -0.05F) {
+                    interactable.interact();
+                }
+
+                if (leftNear && leftMovementY < -0.05F) {
+                    interactable.interact();
+                }
             }
 
-            if (interactable.isNear((float) leftPos[0], (float) leftPos[1], (float) leftPos[2])) {
-                if (leftMovementY < -0.05F) interactable.interact();
-            }
-        }
+            else {
 
-        if (playerNumber == 1) {
-            previousHandX = rightHandJoint[0]; previousHandY = rightHandJoint[1]; previousHandZ = rightHandJoint[2];
-            previousLeftHandX = leftHandJoint[0]; previousLeftHandY = leftHandJoint[1]; previousLeftHandZ = leftHandJoint[2];
-        } else {
-            previousHandX2 = rightHandJoint[0]; previousHandY2 = rightHandJoint[1]; previousHandZ2 = rightHandJoint[2];
-            previousLeftHandX2 = leftHandJoint[0]; previousLeftHandY2 = leftHandJoint[1]; previousLeftHandZ2 = leftHandJoint[2];
+                if (rightNear && !wasRightNear) {
+                    interactable.interact();
+                }
+
+                if (leftNear && !wasLeftNear) {
+                    interactable.interact();
+                }
+            }
+
+            wasNearMap.put(rightKey, rightNear);
+            wasNearMap.put(leftKey, leftNear);
         }
     }
-
-
-
-
-
-
 }
