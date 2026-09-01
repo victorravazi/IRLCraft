@@ -48,15 +48,37 @@ public class KinectInteractionManager {
 
     public KinectInteractionManager() {
 
+        interactables.add(new KinectLever(253.5F,5.5F,1925.5F,new BlockPos(253,5,1925),1.0F ));
         interactables.add(
-                new KinectLever(
-                        253.5F,
+                new KinectCameraTrigger(
+                        270,
                         5.5F,
-                        1925.5F,
-                        new BlockPos(253,5,1925),
-                        0.30F
+                        1925,
+                        1.0F,
+                        KinectCameraTrigger.Action.NEXT
                 )
         );
+
+        interactables.add(
+                new KinectTeleportTrigger(
+                        280,
+                        5.5F,
+                        1925,
+                        1.0F,
+                        KinectTeleportTrigger.Action.NEXT
+                )
+        );
+
+        interactables.add(
+                new KinectComboTrigger(
+                        290,
+                        5.5F,
+                        1925,
+                        1.0F,
+                        KinectComboTrigger.Action.NEXT
+                )
+        );
+
     }
 
     @SubscribeEvent
@@ -235,7 +257,6 @@ public class KinectInteractionManager {
         return new double[]{minecraftHandX, minecraftHandY, minecraftHandZ};
     }
 
-    @SubscribeEvent
     public void renderTestPoint() {
 
         if (ModKinect.receiver == null)

@@ -12,10 +12,9 @@ public class KinectCollisionFilter {
 
     // joints que devem "travar" ao esbarrar num bloco
     private static final int[] COLLISION_JOINTS = {
-            6, 7,   // cotovelo esquerdo, mão esquerda
-            10, 11, // cotovelo direito, mão direita
-            13, 14, // joelho esquerdo, tornozelo esquerdo
-            17, 18  // joelho direito, tornozelo direito
+            12,16,
+            13, 14,
+            17, 18,
     };
 
     private float[][] lastSafeJoints;

@@ -24,15 +24,17 @@ public class KinectRenderer {
         if (ModKinect.playerManager == null)
             return;
 
-        /*
-         * Atualiza os jogadores com os dados
-         * recebidos pelo Kinect.
-         */
         ModKinect.playerManager.updatePlayers(
                 ModKinect.receiver.getPlayers()
         );
 
+        double anchorX = mc.thePlayer.posX - mc.getRenderManager().viewerPosX;
+        double anchorY = mc.thePlayer.posY - mc.getRenderManager().viewerPosY;
+        double anchorZ = mc.thePlayer.posZ - mc.getRenderManager().viewerPosZ;
+
         GlStateManager.pushMatrix();
+
+        GlStateManager.translate((float) anchorX, (float) anchorY, (float) anchorZ);
 
         GlStateManager.disableLighting();
 
@@ -45,9 +47,7 @@ public class KinectRenderer {
 
         GL11.glLineWidth(5.0F);
 
-        /*
-         * Player 1
-         */
+        //Player 1
         KinectPlayer player1 = ModKinect.playerManager.getPlayer1();
 
         if (player1.getJoints() != null) {
@@ -55,9 +55,8 @@ public class KinectRenderer {
             drawMinecraftPlayer(player1);
         }
 
-        /*
-         * Player 2
-         */
+
+        //Player 2
         KinectPlayer player2 = ModKinect.playerManager.getPlayer2();
 
         if (player2.getJoints() != null) {

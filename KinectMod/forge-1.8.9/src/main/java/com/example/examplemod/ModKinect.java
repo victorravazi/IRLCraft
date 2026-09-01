@@ -23,6 +23,9 @@ public class ModKinect {
     public static KinectRenderer renderer;
     public static KinectPlayerManager playerManager;
     public static KinectInteractionManager interactionManager;
+    public static KinectCameraManager cameraManager;
+    public static KinectTeleportManager teleportManager;
+    public static KinectComboManager comboManager;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
@@ -37,12 +40,21 @@ public class ModKinect {
             ClientRegistry.registerKeyBinding(openSkinGui);
             playerManager = new KinectPlayerManager();
             interactionManager = new KinectInteractionManager();
+            cameraManager = new KinectCameraManager();
+            teleportManager = new KinectTeleportManager();
+            comboManager = new KinectComboManager();
             receiver = new KinectReceiver(25566);
             receiver.start();
             renderer = new KinectRenderer();
 
+            net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new CommandKinectAddTeleport());
+
             MinecraftForge.EVENT_BUS.register(this);
+            MinecraftForge.EVENT_BUS.register(cameraManager);
             MinecraftForge.EVENT_BUS.register(interactionManager);
+            MinecraftForge.EVENT_BUS.register(teleportManager);
+            MinecraftForge.EVENT_BUS.register(comboManager);
+
 
             System.out.println("[KINECT] Receiver iniciado!");
 
