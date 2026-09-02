@@ -54,37 +54,22 @@ public class KinectInteractionManager {
 
     public KinectInteractionManager() {
 
-        interactables.add(new KinectLever(253.5F,5.5F,1925.5F,new BlockPos(253,5,1925),1.0F ));
-        interactables.add(
-                new KinectCameraTrigger(
-                        270,
-                        5.5F,
-                        1925,
-                        1.0F,
-                        KinectCameraTrigger.Action.NEXT
-                )
-        );
-
-        interactables.add(
-                new KinectTeleportTrigger(
-                        280,
-                        5.5F,
-                        1925,
-                        1.0F,
-                        KinectTeleportTrigger.Action.NEXT
-                )
-        );
-
+        interactables.add(new KinectRightClickTrigger(303, 4.0F, 1846, 1.5F, new BlockPos(303, 4.5, 1846)));
+        interactables.add(new KinectRightClickTrigger(304, 4.0F, 1845, 1.5F, new BlockPos(304, 4.5, 1845)));
+        interactables.add(new KinectRightClickTrigger(305, 4.0F, 1845, 1.5F, new BlockPos(305, 4.5, 1845)));
+        interactables.add(new KinectRightClickTrigger(306, 4.0F, 1845, 1.5F, new BlockPos(306, 4.5, 1845)));
+        interactables.add(new KinectRightClickTrigger(307, 4.0F, 1846, 1.5F, new BlockPos( 307, 4.5, 1846)));
+        interactables.add(new KinectRightClickTrigger(311.700F, 17.0F, 1961.500F, 2.0F, new BlockPos(311.700, 16.5, 1961.500)));
+        interactables.add(new KinectRightClickTrigger(309.300F, 17.0F, 1961.500F, 2.0F, new BlockPos(309.300, 16.5, 1961.500)));
         interactables.add(
                 new KinectComboTrigger(
-                        290,
+                        295,
                         5.5F,
-                        1925,
-                        1.0F,
+                        1884,
+                        0.80F,
                         KinectComboTrigger.Action.NEXT
                 )
         );
-
     }
 
     @SubscribeEvent
@@ -133,6 +118,8 @@ public class KinectInteractionManager {
         );
 
         GL11.glEnd();
+
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         GlStateManager.enableTexture2D();
         GlStateManager.enableLighting();
@@ -257,7 +244,7 @@ public class KinectInteractionManager {
         double playerZ = mc.thePlayer.posZ;
 
         double minecraftHandX = playerX + handTip[0];
-        double minecraftHandY = playerY + 1.30D + handTip[1];
+        double minecraftHandY = playerY + KinectConstants.VERTICAL_OFFSET + handTip[1];
         double minecraftHandZ = playerZ + handTip[2] + HAND_DEPTH_OFFSET;
 
         return new double[]{minecraftHandX, minecraftHandY, minecraftHandZ};

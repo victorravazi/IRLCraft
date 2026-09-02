@@ -530,11 +530,11 @@ public class KinectRenderer {
 
     private void drawBodyPart(float[] start, float[] end, float width, float depth, float visualLength, int texturePart, boolean slim) {
         float x1 = start[0];
-        float y1 = start[1] + 1.3F;
+        float y1 = start[1] + KinectConstants.VERTICAL_OFFSET;
         float z1 = start[2];
 
         float x2 = end[0];
-        float y2 = end[1] + 1.3F;
+        float y2 = end[1] + KinectConstants.VERTICAL_OFFSET;
         float z2 = end[2];
 
         // Direçao do membro
@@ -661,7 +661,7 @@ public class KinectRenderer {
 
         GL11.glTranslatef(
                 centerX,
-                centerY - 0.30F + 1.3F,
+                centerY - 0.30F + KinectConstants.VERTICAL_OFFSET,
                 centerZ
         );
 
@@ -702,7 +702,7 @@ public class KinectRenderer {
          */
         GL11.glTranslatef(
                 centerX,
-                centerY - 0.30F + 1.3F,
+                centerY - 0.30F + KinectConstants.VERTICAL_OFFSET,
                 centerZ
         );
 
@@ -911,7 +911,7 @@ public class KinectRenderer {
          */
         GL11.glTranslatef(
                 pivot[0],
-                pivot[1] + 1.3F,
+                pivot[1] + KinectConstants.VERTICAL_OFFSET,
                 pivot[2]
         );
 

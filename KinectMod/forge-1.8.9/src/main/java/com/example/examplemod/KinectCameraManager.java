@@ -44,11 +44,13 @@ public class KinectCameraManager {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-
         if (event.phase != TickEvent.Phase.END)
             return;
 
         Minecraft mc = Minecraft.getMinecraft();
+
+        if (mc.currentScreen != null)
+            return;
 
         if (mc.thePlayer == null || mc.theWorld == null)
             return;
@@ -97,6 +99,14 @@ public class KinectCameraManager {
             cameraEntity.prevRotationYaw = yaw;
             cameraEntity.prevRotationPitch = pitch;
         }
+    }
+
+    public void updateFrozenPosition(double x, double y, double z, float yaw, float pitch) {
+        frozenPlayerX = x;
+        frozenPlayerY = y;
+        frozenPlayerZ = z;
+        frozenPlayerYaw = yaw;
+        frozenPlayerPitch = pitch;
     }
 
     public void syncFrozenPlayerToCurrentPlayer() {

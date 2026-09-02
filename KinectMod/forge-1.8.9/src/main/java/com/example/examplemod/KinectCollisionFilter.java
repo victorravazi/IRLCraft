@@ -41,7 +41,7 @@ public class KinectCollisionFilter {
             float[] joint = rawJoints[jointIndex];
 
             double worldX = minecraftPlayer.posX + joint[0];
-            double worldY = minecraftPlayer.posY + 1.30D + joint[1];
+            double worldY = minecraftPlayer.posY + KinectConstants.VERTICAL_OFFSET + joint[1];
             double worldZ = minecraftPlayer.posZ + joint[2];
 
             AxisAlignedBB limbBox = new AxisAlignedBB(

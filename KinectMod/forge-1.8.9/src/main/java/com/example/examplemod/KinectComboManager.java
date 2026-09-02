@@ -18,6 +18,9 @@ public class KinectComboManager {
 
         Minecraft mc = Minecraft.getMinecraft();
 
+        if (mc.currentScreen != null)
+            return;
+
         if (mc.thePlayer == null || mc.theWorld == null)
             return;
 

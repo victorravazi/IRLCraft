@@ -29,6 +29,9 @@ public class KinectTeleportManager {
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
 
+        if (Minecraft.getMinecraft().currentScreen != null)
+            return;
+
         if (event.phase != TickEvent.Phase.END)
             return;
 
@@ -66,6 +69,11 @@ public class KinectTeleportManager {
         System.out.println("[KinectTeleport] " + name + " salvo: " + x + ", " + y + ", " + z);
     }
 
+    private void refreshRenderers(Minecraft mc) {
+        if (mc.renderGlobal != null) {
+            mc.renderGlobal.loadRenderers();
+        }
+    }
 
     public void teleportTo(int index) {
 
@@ -85,11 +93,13 @@ public class KinectTeleportManager {
         player.rotationYaw = point.yaw;
         player.rotationPitch = point.pitch;
 
-        currentIndex = index;
-
         if (ModKinect.cameraManager != null) {
-            ModKinect.cameraManager.syncFrozenPlayerToCurrentPlayer();
+            ModKinect.cameraManager.updateFrozenPosition(point.x, point.y, point.z, point.yaw, point.pitch);
         }
+
+        refreshRenderers(mc); // ver abaixo
+
+        currentIndex = index;
 
         System.out.println("[KinectTeleport] Teleportado para " + point.name);
     }
