@@ -35,8 +35,8 @@ public class KinectTeleportManager {
         if (event.phase != TickEvent.Phase.END)
             return;
 
-        boolean nextDown = Keyboard.isKeyDown(Keyboard.KEY_H);
-        boolean prevDown = Keyboard.isKeyDown(Keyboard.KEY_J);
+        boolean nextDown = Keyboard.isKeyDown(Keyboard.KEY_RIGHT);
+        boolean prevDown = Keyboard.isKeyDown(Keyboard.KEY_LEFT);
         boolean firstDown = Keyboard.isKeyDown(Keyboard.KEY_B);
         boolean lastDown = Keyboard.isKeyDown(Keyboard.KEY_N);
 

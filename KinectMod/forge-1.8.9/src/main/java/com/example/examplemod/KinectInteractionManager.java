@@ -61,13 +61,13 @@ public class KinectInteractionManager {
         interactables.add(new KinectRightClickTrigger(307, 4.0F, 1846, 1.5F, new BlockPos( 307, 4.5, 1846)));
         interactables.add(new KinectRightClickTrigger(311.700F, 17.0F, 1961.500F, 2.0F, new BlockPos(311.700, 16.5, 1961.500)));
         interactables.add(new KinectRightClickTrigger(309.300F, 17.0F, 1961.500F, 2.0F, new BlockPos(309.300, 16.5, 1961.500)));
-        interactables.add(
-                new KinectComboTrigger(
+        KinectTeleportTrigger trigger = (
+                new KinectTeleportTrigger(
                         295,
                         5.5F,
                         1884,
                         0.80F,
-                        KinectComboTrigger.Action.NEXT
+                        KinectTeleportTrigger.Action.NEXT
                 )
         );
     }

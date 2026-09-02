@@ -24,8 +24,8 @@ public class KinectComboManager {
         if (mc.thePlayer == null || mc.theWorld == null)
             return;
 
-        boolean nextDown = Keyboard.isKeyDown(Keyboard.KEY_M);
-        boolean previousDown = Keyboard.isKeyDown(Keyboard.KEY_P);
+        boolean nextDown = Keyboard.isKeyDown(Keyboard.KEY_UP);
+        boolean previousDown = Keyboard.isKeyDown(Keyboard.KEY_DOWN);
 
         if (nextDown && !nextKeyWasDown) {
             next();
