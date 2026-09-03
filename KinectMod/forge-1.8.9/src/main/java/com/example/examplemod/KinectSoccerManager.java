@@ -27,8 +27,8 @@ public class KinectSoccerManager {
     private static final double GOAL_DEPTH = 0.8D;
 
     // Tamanho do gol
-    private static final double GOAL_WIDTH = 3.0D;
-    private static final double GOAL_HEIGHT = 3.0D;
+    private static final double GOAL_WIDTH = 7.0D;
+    private static final double GOAL_HEIGHT = 5.0D;
 
     // Altura em que a bola é criada
     private static final double BALL_HEIGHT = 0.35D;
