@@ -2,66 +2,48 @@ package com.example.examplemod;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntitySnowball;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 public class KinectSoccerManager {
 
-    // Tempo total da partida
     private static final long GAME_DURATION_MS = 30000L;
-
-    // Tempo que a mensagem "Player X marcou!" fica na tela
     private static final long GOAL_MESSAGE_MS = 2000L;
 
-    // Velocidade da bola
-    private static final double BALL_SPEED = 0.65D;
-
-    // Distância mínima entre o pé e o gol para considerar que a bola chegou
-    private static final double GOAL_DEPTH = 0.8D;
+    private static final double IDLE_SPEED_THRESHOLD = 0.20D;
+    private static final long IDLE_RESPAWN_MS = 2000L;
 
     // Tamanho do gol
-    private static final double GOAL_WIDTH = 7.0D;
-    private static final double GOAL_HEIGHT = 5.0D;
+    private static final double GOAL_WIDTH = 8.0D;
+    private static final double GOAL_HEIGHT = 4.0D;
+    private static final double GOAL_DEPTH = 0.8D;
 
-    // Altura em que a bola é criada
-    private static final double BALL_HEIGHT = 0.35D;
-
-    /*
-     * POSIÇÃO DO GOL
-     *
-     * ALTERE ESTES 3 VALORES PARA O LOCAL DO SEU GOL.
-     */
     private static final double GOAL_X = 270.0D;
     private static final double GOAL_Y = 4.0D;
-    private static final double GOAL_Z = 1778.0D;
+    private static final double GOAL_Z = 1781.0D;
 
-    private static final double BALL_OFFSET_X = 0.40D;
+    // As duas posições onde as bolas nascem/reaparecem
+    private static final double BALL1_SPAWN_X = 270.5D;
+    private static final double BALL1_SPAWN_Y = 4.0D;
+    private static final double BALL1_SPAWN_Z = 1793.5D;
 
-    /*
-     * Distância mínima para considerar que houve um chute.
-     *
-     * Quanto maior:
-     *  - mais difícil detectar o chute
-     *
-     * Quanto menor:
-     *  - mais fácil detectar
-     */
-    private static final double KICK_THRESHOLD = 0.10D;
+    private static final double BALL2_SPAWN_X = 10.5D;
+    private static final double BALL2_SPAWN_Y = 4.0D;
+    private static final double BALL2_SPAWN_Z = 10.5D;
 
-    /*
-     * Tempo mínimo entre dois chutes do mesmo jogador.
-     */
-    private static final long KICK_COOLDOWN_MS = 800L;
+    private static final double KICK_RADIUS = 1.2D;
+    private static final double KICK_MIN_FOOT_SPEED = 0.08D;
+    private static final double KICK_POWER = 17.0D;
+    private static final double MIN_FORWARD_COMPONENT = 0.15D;
+    private static final long KICK_COOLDOWN_MS = 1300L;
+    private static final double KICK_LIFT_BASE = 0.12D;    // impulso mínimo de altura, mesmo num chute raso
+    private static final double KICK_LIFT_SCALE = 3.5D;    // o quanto o movimento vertical do pé influencia a altura
+    private static final double KICK_LIFT_MAX = 5.0D;     // limite máximo de altura do chute
 
     private boolean running = false;
-
     private long startTime;
 
     private int goalsPlayer1 = 0;
@@ -69,46 +51,19 @@ public class KinectSoccerManager {
 
     private boolean startKeyWasDown = false;
 
-    /*
-     * Última posição dos pés.
-     */
-    private float previousRightFootX1;
-    private float previousRightFootY1;
-    private float previousRightFootZ1;
+    private BallState ball1;
+    private BallState ball2;
 
-    private float previousLeftFootX1;
-    private float previousLeftFootY1;
-    private float previousLeftFootZ1;
+    // posições anteriores dos pés (pra medir velocidade/direção do chute)
+    private float previousRightFootX1, previousRightFootY1, previousRightFootZ1;
+    private float previousLeftFootX1, previousLeftFootY1, previousLeftFootZ1;
+    private float previousRightFootX2, previousRightFootY2, previousRightFootZ2;
+    private float previousLeftFootX2, previousLeftFootY2, previousLeftFootZ2;
 
-    private float previousRightFootX2;
-    private float previousRightFootY2;
-    private float previousRightFootZ2;
-
-    private float previousLeftFootX2;
-    private float previousLeftFootY2;
-    private float previousLeftFootZ2;
-
-    /*
-     * Evita detectar vários chutes seguidos.
-     */
-    private long lastKickPlayer1 = 0L;
-    private long lastKickPlayer2 = 0L;
-
-    /*
-     * Bolas atualmente no campo.
-     */
-    private final List<BallData> balls = new ArrayList<>();
-
-    /*
-     * Mensagem de gol.
-     */
     private boolean goalMessageShowing = false;
     private long goalMessageTime = 0L;
     private String goalMessage = "";
 
-    /*
-     * Resultado final.
-     */
     private boolean resultShowing = false;
     private long resultShownAt = 0L;
     private String resultMessage = "";
@@ -121,26 +76,71 @@ public class KinectSoccerManager {
             return;
 
         running = true;
-
         goalsPlayer1 = 0;
         goalsPlayer2 = 0;
-
         resultShowing = false;
         goalMessageShowing = false;
-
         startTime = System.currentTimeMillis();
 
         clearBalls();
 
-        /*
-         * Inicializa os pés para evitar que o primeiro movimento
-         * seja interpretado como chute.
-         */
+        ball1 = spawnBall(mc, BALL1_SPAWN_X, BALL1_SPAWN_Y, BALL1_SPAWN_Z);
+        ball2 = spawnBall(mc, BALL2_SPAWN_X, BALL2_SPAWN_Y, BALL2_SPAWN_Z);
+
         initializeFootPositions();
 
-        System.out.println("[KinectSoccer] =====================");
         System.out.println("[KinectSoccer] JOGO INICIADO!");
-        System.out.println("[KinectSoccer] =====================");
+    }
+
+    private void checkIdleRespawn(BallState ball) {
+
+        if (ball == null || ball.entity.isDead)
+            return;
+
+        double speed = Math.sqrt(
+                ball.entity.motionX * ball.entity.motionX +
+                        ball.entity.motionZ * ball.entity.motionZ
+        );
+
+        boolean isIdle = ball.entity.onGround && speed < IDLE_SPEED_THRESHOLD;
+
+        if (isIdle) {
+
+            if (ball.idleSince < 0L) {
+                ball.idleSince = System.currentTimeMillis();
+            } else if (System.currentTimeMillis() - ball.idleSince >= IDLE_RESPAWN_MS) {
+                respawnBall(ball);
+                ball.idleSince = -1L;
+            }
+
+        } else {
+
+            ball.idleSince = -1L;
+        }
+    }
+
+    private BallState spawnBall(Minecraft mc, double x, double y, double z) {
+
+        ItemStack stack = new ItemStack(Items.fire_charge);
+
+        EntityItem item = new EntityItem(mc.theWorld, x, y, z, stack);
+
+        item.motionX = 0.0D;
+        item.motionY = 0.0D;
+        item.motionZ = 0.0D;
+
+        item.setPickupDelay(32767); // efetivamente nunca pode ser "pego" pelo jogador
+
+        mc.theWorld.spawnEntityInWorld(item);
+
+        double forwardX = GOAL_X - x;
+        double forwardZ = GOAL_Z - z;
+        double length = Math.sqrt(forwardX * forwardX + forwardZ * forwardZ);
+
+        forwardX /= length;
+        forwardZ /= length;
+
+        return new BallState(item, x, y, z, forwardX, forwardZ);
     }
 
     @SubscribeEvent
@@ -154,13 +154,9 @@ public class KinectSoccerManager {
         if (mc.thePlayer == null || mc.theWorld == null)
             return;
 
-        /*
-         * Tecla [ para iniciar.
-         */
         if (mc.currentScreen == null) {
 
-            boolean startDown =
-                    Keyboard.isKeyDown(Keyboard.KEY_RBRACKET);
+            boolean startDown = Keyboard.isKeyDown(Keyboard.KEY_RBRACKET);
 
             if (startDown && !startKeyWasDown && !running) {
                 startGame();
@@ -169,71 +165,36 @@ public class KinectSoccerManager {
             startKeyWasDown = startDown;
         }
 
-        /*
-         * Atualiza o jogo.
-         */
         if (running) {
-
-            updateGame(mc);
-
+            updateGame();
         } else {
-
-            /*
-             * Mesmo fora do jogo atualizamos as posições dos pés.
-             * Isso evita um salto grande quando a partida começar.
-             */
             updatePreviousFootPositions();
         }
     }
 
-    private void updateGame(Minecraft mc) {
+    private void updateGame() {
 
         long now = System.currentTimeMillis();
 
-        /*
-         * Detecta chute dos dois jogadores.
-         */
-        checkKick(
-                ModKinect.playerManager.getPlayer1(),
-                1
-        );
+        checkKicksForPlayer(ModKinect.playerManager.getPlayer1(), 1);
+        checkKicksForPlayer(ModKinect.playerManager.getPlayer2(), 2);
 
-        checkKick(
-                ModKinect.playerManager.getPlayer2(),
-                2
-        );
+        checkGoal(ball1);
+        checkGoal(ball2);
 
-        /*
-         * Move as bolas.
-         */
-        moveBalls();
+        checkIdleRespawn(ball1); // <- novo
+        checkIdleRespawn(ball2); // <- novo
 
-        /*
-         * Verifica gols.
-         */
-        checkGoals();
-
-        /*
-         * Final da partida.
-         */
         if (now - startTime >= GAME_DURATION_MS) {
             endGame();
         }
 
-        /*
-         * Mensagem de gol.
-         */
-        if (goalMessageShowing &&
-                now - goalMessageTime >= GOAL_MESSAGE_MS) {
-
+        if (goalMessageShowing && now - goalMessageTime >= GOAL_MESSAGE_MS) {
             goalMessageShowing = false;
         }
     }
 
-    private void checkKick(
-            KinectPlayer player,
-            int playerNumber
-    ) {
+    private void checkKicksForPlayer(KinectPlayer player, int playerNumber) {
 
         if (player == null)
             return;
@@ -249,547 +210,200 @@ public class KinectSoccerManager {
         if (leftFoot == null || rightFoot == null)
             return;
 
-        long now = System.currentTimeMillis();
-
-        long lastKick =
-                playerNumber == 1
-                        ? lastKickPlayer1
-                        : lastKickPlayer2;
-
-        /*
-         * Evita vários chutes seguidos.
-         */
-        if (now - lastKick < KICK_COOLDOWN_MS) {
-
-            saveFootPosition(
-                    leftFoot,
-                    rightFoot,
-                    playerNumber
-            );
-
-            return;
-        }
-
-        /*
-         * Movimento do pé esquerdo.
-         */
-        double leftMovementX;
-        double leftMovementY;
-        double leftMovementZ;
-
-        /*
-         * Movimento do pé direito.
-         */
-        double rightMovementX;
-        double rightMovementY;
-        double rightMovementZ;
-
-        if (playerNumber == 1) {
-
-            leftMovementX =
-                    leftFoot[0] - previousLeftFootX1;
-
-            leftMovementY =
-                    leftFoot[1] - previousLeftFootY1;
-
-            leftMovementZ =
-                    leftFoot[2] - previousLeftFootZ1;
-
-            rightMovementX =
-                    rightFoot[0] - previousRightFootX1;
-
-            rightMovementY =
-                    rightFoot[1] - previousRightFootY1;
-
-            rightMovementZ =
-                    rightFoot[2] - previousRightFootZ1;
-
-        } else {
-
-            leftMovementX =
-                    leftFoot[0] - previousLeftFootX2;
-
-            leftMovementY =
-                    leftFoot[1] - previousLeftFootY2;
-
-            leftMovementZ =
-                    leftFoot[2] - previousLeftFootZ2;
-
-            rightMovementX =
-                    rightFoot[0] - previousRightFootX2;
-
-            rightMovementY =
-                    rightFoot[1] - previousRightFootY2;
-
-            rightMovementZ =
-                    rightFoot[2] - previousRightFootZ2;
-        }
-
-        /*
-         * Calcula a força do movimento de cada pé.
-         */
-        double leftSpeed =
-                Math.sqrt(
-                        leftMovementX * leftMovementX +
-                                leftMovementY * leftMovementY +
-                                leftMovementZ * leftMovementZ
-                );
-
-        double rightSpeed =
-                Math.sqrt(
-                        rightMovementX * rightMovementX +
-                                rightMovementY * rightMovementY +
-                                rightMovementZ * rightMovementZ
-                );
-
-        /*
-         * Se qualquer pé se movimentou bastante,
-         * considera que houve um chute.
-         */
-        if (leftSpeed > KICK_THRESHOLD ||
-                rightSpeed > KICK_THRESHOLD) {
-
-            /*
-             * Usa o pé que teve o maior movimento.
-             */
-            if (rightSpeed >= leftSpeed) {
-
-                shootBall(
-                        player,
-                        playerNumber,
-                        rightMovementX,
-                        rightMovementY,
-                        rightMovementZ
-                );
-
-            } else {
-
-                shootBall(
-                        player,
-                        playerNumber,
-                        leftMovementX,
-                        leftMovementY,
-                        leftMovementZ
-                );
-            }
-
-            if (playerNumber == 1)
-                lastKickPlayer1 = now;
-            else
-                lastKickPlayer2 = now;
-        }
-
-        /*
-         * Salva as posições atuais.
-         */
-        saveFootPosition(
-                leftFoot,
-                rightFoot,
-                playerNumber
-        );
-    }
-
-    private double calculateForwardMovement(
-            float[] foot,
-            int playerNumber,
-            boolean rightFoot
-    ) {
-
-        float previousX;
-        float previousZ;
-
-        if (playerNumber == 1) {
-
-            if (rightFoot) {
-
-                previousX = previousRightFootX1;
-                previousZ = previousRightFootZ1;
-
-            } else {
-
-                previousX = previousLeftFootX1;
-                previousZ = previousLeftFootZ1;
-            }
-
-        } else {
-
-            if (rightFoot) {
-
-                previousX = previousRightFootX2;
-                previousZ = previousRightFootZ2;
-
-            } else {
-
-                previousX = previousLeftFootX2;
-                previousZ = previousLeftFootZ2;
-            }
-        }
-
-        /*
-         * Direção do jogador até o gol.
-         */
         Minecraft mc = Minecraft.getMinecraft();
-
-        double playerX = mc.thePlayer.posX;
-        double playerZ = mc.thePlayer.posZ;
-
-        /*
-         * Pequeno deslocamento lateral para separar
-         * os dois jogadores.
-         *
-         * Isso não altera o renderer.
-         */
-        if (playerNumber == 1)
-            playerX -= 2.0D;
-        else
-            playerX += 2.0D;
-
-        double directionX = GOAL_X - playerX;
-        double directionZ = GOAL_Z - playerZ;
-
-        double length =
-                Math.sqrt(
-                        directionX * directionX +
-                                directionZ * directionZ
-                );
-
-        if (length < 0.001D)
-            return 0.0D;
-
-        directionX /= length;
-        directionZ /= length;
-
-        /*
-         * Movimento do pé.
-         */
-        double movementX = foot[0] - previousX;
-        double movementZ = foot[2] - previousZ;
-
-        /*
-         * Produto escalar:
-         *
-         * mede quanto o pé avançou na direção do gol.
-         */
-        return movementX * directionX +
-                movementZ * directionZ;
-    }
-
-    private void saveFootPosition(
-            float[] leftFoot,
-            float[] rightFoot,
-            int playerNumber
-    ) {
-
-        if (playerNumber == 1) {
-
-            previousLeftFootX1 = leftFoot[0];
-            previousLeftFootY1 = leftFoot[1];
-            previousLeftFootZ1 = leftFoot[2];
-
-            previousRightFootX1 = rightFoot[0];
-            previousRightFootY1 = rightFoot[1];
-            previousRightFootZ1 = rightFoot[2];
-
-        } else {
-
-            previousLeftFootX2 = leftFoot[0];
-            previousLeftFootY2 = leftFoot[1];
-            previousLeftFootZ2 = leftFoot[2];
-
-            previousRightFootX2 = rightFoot[0];
-            previousRightFootY2 = rightFoot[1];
-            previousRightFootZ2 = rightFoot[2];
-        }
-    }
-
-
-    private void initializeFootPositions() {
-
-        KinectPlayer player1 =
-                ModKinect.playerManager.getPlayer1();
-
-        KinectPlayer player2 =
-                ModKinect.playerManager.getPlayer2();
-
-        if (player1 != null &&
-                player1.getJoints() != null) {
-
-            float[][] joints = player1.getJoints();
-
-            saveFootPosition(
-                    joints[14],
-                    joints[18],
-                    1
-            );
-        }
-
-        if (player2 != null &&
-                player2.getJoints() != null) {
-
-            float[][] joints = player2.getJoints();
-
-            saveFootPosition(
-                    joints[14],
-                    joints[18],
-                    2
-            );
-        }
-    }
-
-
-    private void updatePreviousFootPositions() {
-
-        initializeFootPositions();
-    }
-
-    private void shootBall(
-            KinectPlayer player,
-            int playerNumber,
-            double movementX,
-            double movementY,
-            double movementZ
-    ) {
-
-        Minecraft mc = Minecraft.getMinecraft();
-
-        float[][] joints = player.getJoints();
-
-        if (joints == null)
-            return;
-
-        /*
-         * Usa o pé direito como posição inicial da bola.
-         */
-        float[] foot = joints[18];
-
-        if (foot == null)
-            return;
 
         double playerX = mc.thePlayer.posX;
         double playerY = mc.thePlayer.posY;
         double playerZ = mc.thePlayer.posZ;
 
-        /*
-         * Separa os dois jogadores.
-         */
-        if (playerNumber == 1)
-            playerX -= 2.0D;
-        else
-            playerX += 2.0D;
+        tryKick(playerNumber, playerX, playerY, playerZ, rightFoot, true);
+        tryKick(playerNumber, playerX, playerY, playerZ, leftFoot, false);
 
-        /*
-         * Posição inicial da bola.
-         */
-        double ballX = playerX + foot[0] + BALL_OFFSET_X;
+        saveFootPosition(leftFoot, rightFoot, playerNumber);
+    }
 
-        double ballY =
-                playerY +
-                        KinectConstants.VERTICAL_OFFSET +
-                        foot[1] +
-                        BALL_HEIGHT;
+    private void tryKick(
+            int playerNumber,
+            double playerX, double playerY, double playerZ,
+            float[] foot, boolean rightFoot) {
 
-        double ballZ = playerZ + foot[2];
+        float previousX, previousY, previousZ;
 
-        /*
-         * Direção do chute = movimento do pé.
-         */
-        double directionX = movementX;
-        double directionY = movementY;
-        double directionZ = movementZ;
+        if (playerNumber == 1) {
+            previousX = rightFoot ? previousRightFootX1 : previousLeftFootX1;
+            previousY = rightFoot ? previousRightFootY1 : previousLeftFootY1;
+            previousZ = rightFoot ? previousRightFootZ1 : previousLeftFootZ1;
+        } else {
+            previousX = rightFoot ? previousRightFootX2 : previousLeftFootX2;
+            previousY = rightFoot ? previousRightFootY2 : previousLeftFootY2;
+            previousZ = rightFoot ? previousRightFootZ2 : previousLeftFootZ2;
+        }
 
-        /*
-         * Normaliza a direção.
-         */
-        double length =
-                Math.sqrt(
-                        directionX * directionX +
-                                directionY * directionY +
-                                directionZ * directionZ
-                );
+        double movementX = foot[0] - previousX;
+        double movementY = foot[1] - previousY;
+        double movementZ = foot[2] - previousZ;
 
-        if (length < 0.001D)
+        double footSpeed = Math.sqrt(movementX * movementX + movementZ * movementZ);
+
+        if (footSpeed < KICK_MIN_FOOT_SPEED)
             return;
 
-        directionX /= length;
-        directionY /= length;
-        directionZ /= length;
+        double footWorldX = playerX + foot[0];
+        double footWorldY = playerY + KinectConstants.VERTICAL_OFFSET + foot[1];
+        double footWorldZ = playerZ + foot[2];
 
-        /*
-         * Cria a bolinha de neve.
-         */
-        EntitySnowball ball =
-                new EntitySnowball(
-                        mc.theWorld,
-                        ballX,
-                        ballY,
-                        ballZ
-                );
-
-        ball.setPosition(
-                ballX,
-                ballY,
-                ballZ
-        );
-
-        /*
-         * A bola segue exatamente a direção
-         * em que o pé foi chutado.
-         */
-        ball.motionX = directionX * BALL_SPEED;
-        ball.motionY = directionY * BALL_SPEED;
-        ball.motionZ = directionZ * BALL_SPEED;
-
-        mc.theWorld.spawnEntityInWorld(ball);
-
-        balls.add(
-                new BallData(
-                        ball,
-                        playerNumber
-                )
-        );
-
-        System.out.println(
-                "[KinectSoccer] Player " +
-                        playerNumber +
-                        " chutou!"
-        );
-
-        System.out.println(
-                "[KinectSoccer] Direção: " +
-                        directionX + ", " +
-                        directionY + ", " +
-                        directionZ
-        );
+        tryKickBall(ball1, footWorldX, footWorldY, footWorldZ, movementX, movementY, movementZ);
+        tryKickBall(ball2, footWorldX, footWorldY, footWorldZ, movementX, movementY, movementZ);
     }
 
-    private void moveBalls() {
+    private void tryKickBall(
+            BallState ball,
+            double footX, double footY, double footZ,
+            double movementX, double movementY, double movementZ) {
 
-        Iterator<BallData> iterator =
-                balls.iterator();
+        if (ball == null || ball.entity.isDead)
+            return;
 
-        while (iterator.hasNext()) {
+        long now = System.currentTimeMillis();
 
-            BallData data = iterator.next();
+        if (now - ball.lastKickTime < KICK_COOLDOWN_MS)
+            return;
 
-            if (data.entity.isDead) {
+        double dx = footX - ball.entity.posX;
+        double dy = footY - ball.entity.posY;
+        double dz = footZ - ball.entity.posZ;
 
-                iterator.remove();
-                continue;
-            }
+        double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-            EntitySnowball ball = data.entity;
+        if (distance > KICK_RADIUS)
+            return;
 
-            /*
-             * Movimentação manual.
-             */
-            ball.posX += ball.motionX;
-            ball.posY += ball.motionY;
-            ball.posZ += ball.motionZ;
+        double rawLength = Math.sqrt(movementX * movementX + movementZ * movementZ);
 
-            ball.setPosition(
-                    ball.posX,
-                    ball.posY,
-                    ball.posZ
-            );
+        if (rawLength < 0.001D)
+            return;
 
-            /*
-             * Remove se passou muito longe.
-             */
-            double distance =
-                    ball.getDistance(
-                            GOAL_X,
-                            GOAL_Y,
-                            GOAL_Z
-                    );
+        double rawDirX = movementX / rawLength;
+        double rawDirZ = movementZ / rawLength;
 
-            if (distance > 30.0D) {
+        double lateralX = -ball.forwardZ;
+        double lateralZ = ball.forwardX;
 
-                ball.setDead();
-                iterator.remove();
-            }
+        double forwardComponent = rawDirX * ball.forwardX + rawDirZ * ball.forwardZ;
+        double lateralComponent = rawDirX * lateralX + rawDirZ * lateralZ;
+
+        if (forwardComponent < MIN_FORWARD_COMPONENT) {
+            forwardComponent = MIN_FORWARD_COMPONENT;
+        }
+
+        double finalDirX = ball.forwardX * forwardComponent + lateralX * lateralComponent;
+        double finalDirZ = ball.forwardZ * forwardComponent + lateralZ * lateralComponent;
+
+        double finalLength = Math.sqrt(finalDirX * finalDirX + finalDirZ * finalDirZ);
+
+        finalDirX /= finalLength;
+        finalDirZ /= finalLength;
+
+        ball.entity.motionX = finalDirX * KICK_POWER * 0.1D;
+        ball.entity.motionZ = finalDirZ * KICK_POWER * 0.1D;
+
+        // impulso vertical: base mínima + proporcional ao quanto o pé subiu
+        double verticalImpulse = KICK_LIFT_BASE + Math.max(0.0D, movementY) * KICK_LIFT_SCALE;
+
+        if (verticalImpulse > KICK_LIFT_MAX) {
+            verticalImpulse = KICK_LIFT_MAX;
+        }
+
+        ball.entity.motionY = verticalImpulse;
+
+        ball.lastKickTime = now;
+
+        ball.idleSince = -1L; // garante que o respawn por "parada" não conte enquanto ela ainda está no ar
+
+        System.out.println("[KinectSoccer] Chute! dir=(" + finalDirX + ", " + finalDirZ + ") altura=" + verticalImpulse);
+    }
+
+    private void checkGoal(BallState ball) {
+
+        if (ball == null || ball.entity.isDead)
+            return;
+
+        EntityItem entity = ball.entity;
+
+        double depth = Math.abs(entity.posZ - GOAL_Z);
+
+        if (depth > GOAL_DEPTH)
+            return;
+
+        double horizontalDistance = Math.abs(entity.posX - GOAL_X);
+        double verticalDistance = entity.posY - GOAL_Y;
+
+        if (horizontalDistance <= GOAL_WIDTH / 2.0D &&
+                verticalDistance >= 0.0D &&
+                verticalDistance <= GOAL_HEIGHT) {
+
+            registerGoal();
+            respawnBall(ball);
+            return;
+        }
+
+        // se a bola foi longe demais do lugar dela (saiu do campo), reposiciona
+        double distFromSpawn = entity.getDistance(ball.spawnX, ball.spawnY, ball.spawnZ);
+
+        if (distFromSpawn > 20.0D) {
+            respawnBall(ball);
         }
     }
 
-    private void checkGoals() {
+    private void respawnBall(BallState ball) {
 
-        Iterator<BallData> iterator =
-                balls.iterator();
-
-        while (iterator.hasNext()) {
-
-            BallData data = iterator.next();
-
-            EntitySnowball ball = data.entity;
-
-            if (ball.isDead) {
-
-                iterator.remove();
-                continue;
-            }
-
-            /*
-             * Distância no eixo Z até o gol.
-             */
-            double depth =
-                    Math.abs(ball.posZ - GOAL_Z);
-
-            if (depth > GOAL_DEPTH)
-                continue;
-
-            /*
-             * Verifica largura.
-             */
-            double horizontalDistance =
-                    Math.abs(ball.posX - GOAL_X);
-
-            /*
-             * Verifica altura.
-             */
-            double verticalDistance =
-                    ball.posY - GOAL_Y;
-
-            if (horizontalDistance <= GOAL_WIDTH / 2.0D &&
-                    verticalDistance >= 0.0D &&
-                    verticalDistance <= GOAL_HEIGHT) {
-
-                registerGoal(
-                        data.playerNumber
-                );
-
-                ball.setDead();
-                iterator.remove();
-            }
-        }
+        ball.entity.setPosition(ball.spawnX, ball.spawnY, ball.spawnZ);
+        ball.entity.motionX = 0.0D;
+        ball.entity.motionY = 0.0D;
+        ball.entity.motionZ = 0.0D;
     }
 
-    private void registerGoal(int playerNumber) {
+    private void registerGoal() {
 
-        if (playerNumber == 1)
-            goalsPlayer1++;
-        else
-            goalsPlayer2++;
-
-        goalMessage =
-                "Player " +
-                        playerNumber +
-                        ": marcou!";
-
+        // simplificado: como as duas bolas podem ser chutadas por qualquer jogador,
+        // aqui contamos como ponto geral. Se quiser saber QUEM chutou por último,
+        // dá pra guardar isso no BallState também (me avisa se quiser essa versão).
+        goalMessage = "GOL!";
         goalMessageShowing = true;
+        goalMessageTime = System.currentTimeMillis();
 
-        goalMessageTime =
-                System.currentTimeMillis();
+        System.out.println("[KinectSoccer] " + goalMessage);
+    }
 
-        System.out.println(
-                "[KinectSoccer] " +
-                        goalMessage
-        );
+    private void saveFootPosition(float[] leftFoot, float[] rightFoot, int playerNumber) {
 
-        System.out.println(
-                "[KinectSoccer] Placar: " +
-                        goalsPlayer1 +
-                        " x " +
-                        goalsPlayer2
-        );
+        if (playerNumber == 1) {
+            previousLeftFootX1 = leftFoot[0]; previousLeftFootY1 = leftFoot[1]; previousLeftFootZ1 = leftFoot[2];
+            previousRightFootX1 = rightFoot[0]; previousRightFootY1 = rightFoot[1]; previousRightFootZ1 = rightFoot[2];
+        } else {
+            previousLeftFootX2 = leftFoot[0]; previousLeftFootY2 = leftFoot[1]; previousLeftFootZ2 = leftFoot[2];
+            previousRightFootX2 = rightFoot[0]; previousRightFootY2 = rightFoot[1]; previousRightFootZ2 = rightFoot[2];
+        }
+    }
+
+    private void initializeFootPositions() {
+
+        KinectPlayer player1 = ModKinect.playerManager.getPlayer1();
+        KinectPlayer player2 = ModKinect.playerManager.getPlayer2();
+
+        if (player1 != null && player1.getJoints() != null) {
+            float[][] joints = player1.getJoints();
+            saveFootPosition(joints[14], joints[18], 1);
+        }
+
+        if (player2 != null && player2.getJoints() != null) {
+            float[][] joints = player2.getJoints();
+            saveFootPosition(joints[14], joints[18], 2);
+        }
+    }
+
+    private void updatePreviousFootPositions() {
+        initializeFootPositions();
     }
 
     private void endGame() {
@@ -798,48 +412,21 @@ public class KinectSoccerManager {
 
         clearBalls();
 
-        if (goalsPlayer1 > goalsPlayer2) {
-
-            resultMessage =
-                    "Fim de jogo! Player 1 venceu! " +
-                            "P1: " + goalsPlayer1 +
-                            " | P2: " + goalsPlayer2;
-
-        } else if (goalsPlayer2 > goalsPlayer1) {
-
-            resultMessage =
-                    "Fim de jogo! Player 2 venceu! " +
-                            "P1: " + goalsPlayer1 +
-                            " | P2: " + goalsPlayer2;
-
-        } else {
-
-            resultMessage =
-                    "Fim de jogo! Empate! " +
-                            "P1: " + goalsPlayer1 +
-                            " | P2: " + goalsPlayer2;
-        }
+        resultMessage = "Fim de jogo!";
 
         resultShowing = true;
+        resultShownAt = System.currentTimeMillis();
 
-        resultShownAt =
-                System.currentTimeMillis();
-
-        System.out.println(
-                "[KinectSoccer] " +
-                        resultMessage
-        );
+        System.out.println("[KinectSoccer] " + resultMessage);
     }
 
     private void clearBalls() {
 
-        for (BallData data : balls) {
+        if (ball1 != null && !ball1.entity.isDead) ball1.entity.setDead();
+        if (ball2 != null && !ball2.entity.isDead) ball2.entity.setDead();
 
-            if (!data.entity.isDead)
-                data.entity.setDead();
-        }
-
-        balls.clear();
+        ball1 = null;
+        ball2 = null;
     }
 
     public boolean isRunning() {
@@ -851,11 +438,8 @@ public class KinectSoccerManager {
         if (!goalMessageShowing)
             return false;
 
-        if (System.currentTimeMillis() -
-                goalMessageTime >= GOAL_MESSAGE_MS) {
-
+        if (System.currentTimeMillis() - goalMessageTime >= GOAL_MESSAGE_MS) {
             goalMessageShowing = false;
-
             return false;
         }
 
@@ -871,11 +455,8 @@ public class KinectSoccerManager {
         if (!resultShowing)
             return false;
 
-        if (System.currentTimeMillis() -
-                resultShownAt >= 5000L) {
-
+        if (System.currentTimeMillis() - resultShownAt >= 5000L) {
             resultShowing = false;
-
             return false;
         }
 
@@ -886,18 +467,22 @@ public class KinectSoccerManager {
         return resultMessage;
     }
 
-    private static class BallData {
+    private static class BallState {
 
-        final EntitySnowball entity;
-        final int playerNumber;
+        final EntityItem entity;
+        final double spawnX, spawnY, spawnZ;
+        final double forwardX, forwardZ;
+        long lastKickTime = 0L;
+        long idleSince = -1L;
 
-        BallData(
-                EntitySnowball entity,
-                int playerNumber
-        ) {
 
+        BallState(EntityItem entity, double spawnX, double spawnY, double spawnZ, double forwardX, double forwardZ) {
             this.entity = entity;
-            this.playerNumber = playerNumber;
+            this.spawnX = spawnX;
+            this.spawnY = spawnY;
+            this.spawnZ = spawnZ;
+            this.forwardX = forwardX;
+            this.forwardZ = forwardZ;
         }
     }
 }

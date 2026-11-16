@@ -152,8 +152,9 @@ public class KinectCameraManager {
         if (saveDown && !saveKeyWasDown && currentSavedIndex == -1) {
             saveCurrentCamera();
         }
-
         saveKeyWasDown = saveDown;
+
+
     }
 
     private void cycleCamera(int direction) {
